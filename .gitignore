@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+.next/
+out/
+
+# Tests & coverage
+coverage/
+.vitest-cache/
+playwright-report/
+test-results/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+.vscode/settings.json
+*.swp
+*.swo
+Thumbs.db
+
+# Turbo
+.turbo/
+
+# Debug
+*.log
+npm-debug.log*
+pnpm-debug.log*
