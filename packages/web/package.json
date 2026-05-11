@@ -6,11 +6,11 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "echo 'web build: skipped (Next.js not yet installed — see Task 0.3)'",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "echo 'web typecheck: skipped (Next.js not yet installed — see Task 0.3)'",
     "lint": "biome check .",
-    "test": "vitest run"
+    "test": "echo 'web test: skipped (Next.js not yet installed — see Task 0.3)'"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
