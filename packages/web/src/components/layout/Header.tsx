@@ -1,9 +1,12 @@
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { MenuIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from './Logo';
 
 const navLinks = [
-  { href: '/guida', label: 'Guide' },
-  { href: '/sicurezza', label: 'Security' },
+  { href: '/guida', label: 'Guida' },
+  { href: '/sicurezza', label: 'Sicurezza' },
   { href: '/about', label: 'About' },
 ];
 
@@ -14,7 +17,9 @@ export function Header() {
         <Link href="/" className="no-underline">
           <Logo />
         </Link>
-        <nav className="flex items-center gap-1">
+
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
@@ -28,9 +33,39 @@ export function Header() {
             href="/genera"
             className="ml-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-paper no-underline transition-colors hover:bg-primary-ink"
           >
-            Open app
+            Apri app
           </Link>
         </nav>
+
+        {/* Mobile nav */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <MenuIcon className="size-5" />
+              <span className="sr-only">Menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-64 bg-surface p-6">
+            <SheetTitle className="sr-only">Navigazione</SheetTitle>
+            <nav className="mt-6 flex flex-col gap-1">
+              {navLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="rounded-md px-3 py-2.5 text-sm text-ink no-underline transition-colors hover:bg-paper-2"
+                >
+                  {label}
+                </Link>
+              ))}
+              <Link
+                href="/genera"
+                className="mt-3 rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-semibold text-paper no-underline transition-colors hover:bg-primary-ink"
+              >
+                Apri app
+              </Link>
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );
