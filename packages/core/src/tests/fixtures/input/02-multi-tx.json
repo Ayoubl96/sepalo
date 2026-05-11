@@ -1,0 +1,82 @@
+{
+  "initiator": {
+    "name": "Acme S.r.l.",
+    "identifier": { "type": "CUC", "value": "ABC12345" },
+    "iban": "IT60X0542811101000000123456",
+    "abi": "05428"
+  },
+  "executionDate": "2024-12-15",
+  "batchBooking": false,
+  "transactions": [
+    {
+      "id": "TX-001",
+      "endToEndId": "E2E-001",
+      "amount": 100.0,
+      "beneficiary": { "name": "Mario Rossi", "iban": "IT60X0542811101000000654321" },
+      "remittanceInfo": "Invoice 001"
+    },
+    {
+      "id": "TX-002",
+      "endToEndId": "E2E-002",
+      "amount": 250.75,
+      "beneficiary": { "name": "Giulia Bianchi", "iban": "IT40F0200811101000001234567" },
+      "remittanceInfo": "Invoice 002"
+    },
+    {
+      "id": "TX-003",
+      "endToEndId": "E2E-003",
+      "amount": 75.2,
+      "beneficiary": { "name": "Luca Verdi", "iban": "IT60X0542811101000009876543" },
+      "remittanceInfo": "Invoice 003"
+    },
+    {
+      "id": "TX-004",
+      "endToEndId": "E2E-004",
+      "amount": 500.0,
+      "beneficiary": { "name": "Anna Ferrari", "iban": "IT40F0200811101000007654321" },
+      "remittanceInfo": "Invoice 004"
+    },
+    {
+      "id": "TX-005",
+      "endToEndId": "E2E-005",
+      "amount": 1200.0,
+      "beneficiary": { "name": "Paolo Russo", "iban": "IT60X0542811101000005432109" },
+      "remittanceInfo": "Invoice 005"
+    },
+    {
+      "id": "TX-006",
+      "endToEndId": "E2E-006",
+      "amount": 88.5,
+      "beneficiary": { "name": "Sofia Conti", "iban": "IT40F0200811101000003456789" },
+      "remittanceInfo": "Invoice 006"
+    },
+    {
+      "id": "TX-007",
+      "endToEndId": "E2E-007",
+      "amount": 340.0,
+      "beneficiary": { "name": "Marco Esposito", "iban": "IT60X0542811101000002109876" },
+      "remittanceInfo": "Invoice 007"
+    },
+    {
+      "id": "TX-008",
+      "endToEndId": "E2E-008",
+      "amount": 60.0,
+      "beneficiary": { "name": "Elena Ricci", "iban": "IT40F0200811101000006789012" },
+      "remittanceInfo": "Invoice 008"
+    },
+    {
+      "id": "TX-009",
+      "endToEndId": "E2E-009",
+      "amount": 175.3,
+      "beneficiary": { "name": "Roberto Lombardi", "iban": "IT60X0542811101000008901234" },
+      "remittanceInfo": "Invoice 009"
+    },
+    {
+      "id": "TX-010",
+      "endToEndId": "E2E-010",
+      "amount": 420.0,
+      "beneficiary": { "name": "Chiara Marinetti", "iban": "IT40F0200811101000004567890" },
+      "remittanceInfo": "Invoice 010"
+    }
+  ]
+}

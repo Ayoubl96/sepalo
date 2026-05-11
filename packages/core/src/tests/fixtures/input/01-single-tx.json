@@ -1,0 +1,22 @@
+{
+  "initiator": {
+    "name": "Acme S.r.l.",
+    "identifier": { "type": "CUC", "value": "ABC12345" },
+    "iban": "IT60X0542811101000000123456",
+    "abi": "05428"
+  },
+  "executionDate": "2024-12-15",
+  "batchBooking": true,
+  "transactions": [
+    {
+      "id": "TX-001",
+      "endToEndId": "E2E-001",
+      "amount": 100.5,
+      "beneficiary": {
+        "name": "Mario Rossi",
+        "iban": "IT60X0542811101000000654321"
+      },
+      "remittanceInfo": "Invoice 2024-001"
+    }
+  ]
+}
