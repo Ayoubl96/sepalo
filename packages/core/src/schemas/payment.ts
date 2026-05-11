@@ -9,7 +9,10 @@ export const InitiatorSchema = z.object({
   name: z.string().min(1).max(70),
   identifier: PartyIdentifierSchema,
   iban: z.string().min(15).max(34),
-  abi: z.string().length(5).regex(/^\d{5}$/),
+  abi: z
+    .string()
+    .length(5)
+    .regex(/^\d{5}$/),
 });
 
 export const BeneficiarySchema = z.object({
