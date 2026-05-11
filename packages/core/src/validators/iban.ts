@@ -1,4 +1,4 @@
-export const SEPA_COUNTRIES = new Set([
+const SEPA_COUNTRIES = new Set([
   'AT',
   'BE',
   'BG',
