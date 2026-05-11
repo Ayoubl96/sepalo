@@ -1,3 +1,5 @@
+import { fromBase64, toBase64 } from './base64';
+
 export interface EncryptedBlob {
   iv: string;
   ciphertext: string;
@@ -36,12 +38,4 @@ export async function decrypt(blob: EncryptedBlob, key: CryptoKey): Promise<stri
   const ciphertext = fromBase64(blob.ciphertext);
   const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
   return new TextDecoder().decode(plaintext);
-}
-
-function toBase64(buf: Uint8Array<ArrayBuffer>): string {
-  return btoa(String.fromCharCode(...buf));
-}
-
-function fromBase64(b64: string): Uint8Array<ArrayBuffer> {
-  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 }
