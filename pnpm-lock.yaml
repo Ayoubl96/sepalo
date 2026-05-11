@@ -23,6 +23,9 @@ importers:
       fast-xml-parser:
         specifier: ^5.7.3
         version: 5.7.3
+      xmllint-wasm:
+        specifier: ^5.2.0
+        version: 5.2.0(@types/node@20.19.40)
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -1481,6 +1484,12 @@ packages:
     resolution: {integrity: sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==}
     engines: {node: '>=16.0.0'}
 
+  xmllint-wasm@5.2.0:
+    resolution: {integrity: sha512-GVMuR3ViU8R7sakcVm/4GClMtCV8p7xgjXZlc6GmvPpInIz4V41lmRnjSd4uKhVkf5MZj97wEZkPM4RMAhojuQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@types/node': '>=16'
+
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
@@ -2728,5 +2737,9 @@ snapshots:
       stackback: 0.0.2
 
   xml-naming@0.1.0: {}
+
+  xmllint-wasm@5.2.0(@types/node@20.19.40):
+    dependencies:
+      '@types/node': 20.19.40
 
   zod@4.4.3: {}
