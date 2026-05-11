@@ -85,21 +85,15 @@ describe('BeneficiarySchema', () => {
   });
 
   it('rejects empty name', () => {
-    expect(
-      BeneficiarySchema.safeParse({ ...validBeneficiary, name: '' }).success,
-    ).toBe(false);
+    expect(BeneficiarySchema.safeParse({ ...validBeneficiary, name: '' }).success).toBe(false);
   });
 
   it('rejects IBAN shorter than 15 chars', () => {
-    expect(
-      BeneficiarySchema.safeParse({ ...validBeneficiary, iban: 'IT123' }).success,
-    ).toBe(false);
+    expect(BeneficiarySchema.safeParse({ ...validBeneficiary, iban: 'IT123' }).success).toBe(false);
   });
 
   it('rejects BIC shorter than 8 chars', () => {
-    expect(
-      BeneficiarySchema.safeParse({ ...validBeneficiary, bic: 'UNC' }).success,
-    ).toBe(false);
+    expect(BeneficiarySchema.safeParse({ ...validBeneficiary, bic: 'UNC' }).success).toBe(false);
   });
 });
 
@@ -118,15 +112,11 @@ describe('TransactionSchema', () => {
   });
 
   it('rejects zero amount', () => {
-    expect(
-      TransactionSchema.safeParse({ ...validTransaction, amount: 0 }).success,
-    ).toBe(false);
+    expect(TransactionSchema.safeParse({ ...validTransaction, amount: 0 }).success).toBe(false);
   });
 
   it('rejects negative amount', () => {
-    expect(
-      TransactionSchema.safeParse({ ...validTransaction, amount: -10 }).success,
-    ).toBe(false);
+    expect(TransactionSchema.safeParse({ ...validTransaction, amount: -10 }).success).toBe(false);
   });
 
   it('rejects amount above maximum', () => {
@@ -163,9 +153,7 @@ describe('PaymentBatchSchema', () => {
   });
 
   it('rejects empty transactions array', () => {
-    expect(
-      PaymentBatchSchema.safeParse({ ...validBatch, transactions: [] }).success,
-    ).toBe(false);
+    expect(PaymentBatchSchema.safeParse({ ...validBatch, transactions: [] }).success).toBe(false);
   });
 
   it('rejects invalid date format', () => {
@@ -187,9 +175,6 @@ describe('PaymentBatchSchema', () => {
   });
 
   it('accepts batchBooking false', () => {
-    expect(
-      PaymentBatchSchema.safeParse({ ...validBatch, batchBooking: false })
-        .success,
-    ).toBe(true);
+    expect(PaymentBatchSchema.safeParse({ ...validBatch, batchBooking: false }).success).toBe(true);
   });
 });
