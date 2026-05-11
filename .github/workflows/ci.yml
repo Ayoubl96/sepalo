@@ -31,6 +31,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Build core
+        run: pnpm --filter @sepalo/core build
+
       - name: Typecheck
         run: pnpm typecheck
 
