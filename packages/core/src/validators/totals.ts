@@ -5,9 +5,7 @@ export function validateTotals(batch: PaymentBatch): ValidationError[] {
   const { transactions } = batch;
 
   const expectedCount = transactions.length;
-  const expectedSum = Math.round(
-    transactions.reduce((acc, tx) => acc + tx.amount, 0) * 100,
-  ) / 100;
+  const expectedSum = Math.round(transactions.reduce((acc, tx) => acc + tx.amount, 0) * 100) / 100;
 
   if (expectedCount === 0) {
     errors.push({
