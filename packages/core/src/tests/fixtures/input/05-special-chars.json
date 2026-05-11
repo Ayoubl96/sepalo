@@ -1,0 +1,22 @@
+{
+  "initiator": {
+    "name": "Società Caffè e Gelati S.r.l.",
+    "identifier": { "type": "CUC", "value": "ABC12345" },
+    "iban": "IT60X0542811101000000123456",
+    "abi": "05428"
+  },
+  "executionDate": "2024-12-15",
+  "batchBooking": false,
+  "transactions": [
+    {
+      "id": "TX-001",
+      "endToEndId": "E2E-001",
+      "amount": 55.0,
+      "beneficiary": {
+        "name": "François Müller",
+        "iban": "IT60X0542811101000000654321"
+      },
+      "remittanceInfo": "Pagamento caffè e gelati — fattura n.42"
+    }
+  ]
+}
