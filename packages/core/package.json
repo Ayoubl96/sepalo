@@ -12,9 +12,7 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -27,6 +25,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "fast-xml-parser": "^5.7.3",
     "zod": "^4.4.3"
   }
 }

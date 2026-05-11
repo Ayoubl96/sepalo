@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getAbiName, validateAbi } from './abi.js';
 import { extractAbiFromIban } from '../utils/iban-to-abi.js';
+import { getAbiName, validateAbi } from './abi.js';
 
 describe('validateAbi', () => {
   it('accepts a known ABI code', () => {

@@ -1,8 +1,13 @@
-import type { PaymentBatch, ValidationResult, ValidationError, ValidationWarning } from '../types/index.js';
-import { validateIban } from './iban.js';
+import type {
+  PaymentBatch,
+  ValidationError,
+  ValidationResult,
+  ValidationWarning,
+} from '../types/index.js';
 import { validateAbi } from './abi.js';
 import { validateCuc } from './cuc.js';
 import { validateFiscalIdentifier } from './fiscal-code.js';
+import { validateIban } from './iban.js';
 import { sanitize } from './sepa-charset.js';
 import { validateTotals } from './totals.js';
 

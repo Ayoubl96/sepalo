@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sanitize, isSepaCompliant } from './sepa-charset.js';
+import { isSepaCompliant, sanitize } from './sepa-charset.js';
 
 describe('isSepaCompliant', () => {
   it('accepts plain ASCII letters and digits', () => {
@@ -7,7 +7,7 @@ describe('isSepaCompliant', () => {
   });
 
   it('accepts all SEPA special characters', () => {
-    expect(isSepaCompliant('/-?:().,\'+')).toBe(true);
+    expect(isSepaCompliant("/-?:().,'+")).toBe(true);
   });
 
   it('rejects accented characters', () => {

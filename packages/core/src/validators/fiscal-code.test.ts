@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { validateCodiceFiscale, validatePartitaIva, validateFiscalIdentifier } from './fiscal-code.js';
+import {
+  validateCodiceFiscale,
+  validateFiscalIdentifier,
+  validatePartitaIva,
+} from './fiscal-code.js';
 
 describe('validateCodiceFiscale', () => {
   it('accepts a valid codice fiscale', () => {
