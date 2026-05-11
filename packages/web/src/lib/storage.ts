@@ -1,6 +1,6 @@
 import { clear, del, get, set } from 'idb-keyval';
-import { decrypt, encrypt } from './crypto.js';
-import type { EncryptedBlob } from './crypto.js';
+import { decrypt, encrypt } from './crypto';
+import type { EncryptedBlob } from './crypto';
 
 const NS = '@sepalo/v1/';
 
