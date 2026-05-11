@@ -31,6 +31,24 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+  --radius: 8px;
+
+  /* shadcn/ui token aliases — map to our palette */
+  --color-background: #faf8f4;
+  --color-foreground: #14151a;
+  --color-card: #ffffff;
+  --color-card-foreground: #14151a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #14151a;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f3efe7;
+  --color-secondary-foreground: #2c2d33;
+  --color-muted-foreground: #6f6e66;
+  --color-accent-foreground: #14151a;
+  --color-destructive: #b0322b;
+  --color-border: #e6e1d6;
+  --color-input: #e6e1d6;
+  --color-ring: #1b2a56;
 }
 
 /* Dark mode */

@@ -1,3 +1,4 @@
+import { PinGuard } from '@/components/auth/PinGuard';
 import { Logo } from '@/components/layout/Logo';
 import Link from 'next/link';
 
@@ -71,7 +72,9 @@ export default function ToolLayout({ children }: { children: React.ReactNode }) 
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto">
+        <PinGuard>{children}</PinGuard>
+      </main>
     </div>
   );
 }
