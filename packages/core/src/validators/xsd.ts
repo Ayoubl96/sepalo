@@ -1,4 +1,4 @@
-import { CBI_PAYMENT_XSD } from '../data/xsd/index.js';
+import { CBI_BODY_XSD, CBI_PAYMENT_REQUEST_XSD } from '../data/xsd/index.js';
 import type { ValidationError, ValidationResult } from '../types/index.js';
 
 export async function validateAgainstXsd(xml: string): Promise<ValidationResult> {
@@ -6,7 +6,10 @@ export async function validateAgainstXsd(xml: string): Promise<ValidationResult>
 
   const result = await validateXML({
     xml: [{ fileName: 'payment.xml', contents: xml }],
-    schema: [{ fileName: 'CBIBdyPaymentRequest.00.04.01.xsd', contents: CBI_PAYMENT_XSD }],
+    schema: [
+      { fileName: 'CBIPaymentRequest.00.04.01.xsd', contents: CBI_PAYMENT_REQUEST_XSD },
+      { fileName: 'CBIBdyPaymentRequest.00.04.01.xsd', contents: CBI_BODY_XSD },
+    ],
   });
 
   if (result.valid) {

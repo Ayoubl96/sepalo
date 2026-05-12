@@ -1,8 +1,8 @@
-export const CBI_PAYMENT_XSD = `<?xml version="1.0" encoding="UTF-8"?>
+export const CBI_PAYMENT_REQUEST_XSD = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01"
-  xmlns:tns="urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01"
+  targetNamespace="urn:CBI:xsd:CBIPaymentRequest.00.04.01"
+  xmlns:tns="urn:CBI:xsd:CBIPaymentRequest.00.04.01"
   elementFormDefault="qualified">
 
   <xs:simpleType name="Max35Text">
@@ -64,6 +64,22 @@ export const CBI_PAYMENT_XSD = `<?xml version="1.0" encoding="UTF-8"?>
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="Priority2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HIGH"/>
+      <xs:enumeration value="NORM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ChargeBearerType1Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DEBT"/>
+      <xs:enumeration value="CRED"/>
+      <xs:enumeration value="SHAR"/>
+      <xs:enumeration value="SLEV"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="ActiveOrHistoricCurrencyAndAmount">
     <xs:simpleContent>
       <xs:extension base="tns:CurrencyAmountSimple">
@@ -90,7 +106,7 @@ export const CBI_PAYMENT_XSD = `<?xml version="1.0" encoding="UTF-8"?>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="CategoryPurpose1Choice">
+  <xs:complexType name="LocalInstrument2Choice">
     <xs:sequence>
       <xs:element name="Cd" type="tns:Max35Text"/>
     </xs:sequence>
@@ -98,8 +114,9 @@ export const CBI_PAYMENT_XSD = `<?xml version="1.0" encoding="UTF-8"?>
 
   <xs:complexType name="PaymentTypeInformation26">
     <xs:sequence>
+      <xs:element name="InstrPrty" type="tns:Priority2Code" minOccurs="0"/>
       <xs:element name="SvcLvl" type="tns:ServiceLevel8Choice" minOccurs="0"/>
-      <xs:element name="CtgyPurp" type="tns:CategoryPurpose1Choice" minOccurs="0"/>
+      <xs:element name="LclInstrm" type="tns:LocalInstrument2Choice" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -185,13 +202,7 @@ export const CBI_PAYMENT_XSD = `<?xml version="1.0" encoding="UTF-8"?>
   <xs:complexType name="GenericOrganisationIdentification1">
     <xs:sequence>
       <xs:element name="Id" type="tns:Max35Text"/>
-      <xs:element name="SchmeNm" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="Cd" type="tns:Max35Text"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
+      <xs:element name="Issr" type="tns:Max35Text" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -236,17 +247,46 @@ export const CBI_PAYMENT_XSD = `<?xml version="1.0" encoding="UTF-8"?>
       <xs:element name="Dbtr" type="tns:PartyIdentification135"/>
       <xs:element name="DbtrAcct" type="tns:CashAccount38"/>
       <xs:element name="DbtrAgt" type="tns:BranchAndFinancialInstitutionIdentification6DbtrAgt" minOccurs="0"/>
+      <xs:element name="ChrgBr" type="tns:ChargeBearerType1Code" minOccurs="0"/>
       <xs:element name="CdtTrfTxInf" type="tns:CreditTransferTransaction34" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="CBIBdyPaymentRequestType">
+  <xs:complexType name="CBIPaymentRequestType">
     <xs:sequence>
       <xs:element name="GrpHdr" type="tns:GroupHeader83"/>
       <xs:element name="PmtInf" type="tns:PaymentInstruction30" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
+
+</xs:schema>`;
+
+export const CBI_BODY_XSD = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01"
+  xmlns:tns="urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01"
+  xmlns:pmrq="urn:CBI:xsd:CBIPaymentRequest.00.04.01"
+  elementFormDefault="qualified">
+
+  <xs:import namespace="urn:CBI:xsd:CBIPaymentRequest.00.04.01" schemaLocation="CBIPaymentRequest.00.04.01.xsd"/>
+
+  <xs:complexType name="CBIEnvelPaymentRequestType">
+    <xs:sequence>
+      <xs:element name="CBIPaymentRequest" type="pmrq:CBIPaymentRequestType"/>
+      <xs:element name="CBISgnInf" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CBIBdyPaymentRequestType">
+    <xs:sequence>
+      <xs:element name="CBIEnvelPaymentRequest" type="tns:CBIEnvelPaymentRequestType"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:element name="CBIBdyPaymentRequest" type="tns:CBIBdyPaymentRequestType"/>
 
 </xs:schema>`;
+
+export const CBI_PAYMENT_XSD = CBI_BODY_XSD;

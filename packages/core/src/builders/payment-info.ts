@@ -9,12 +9,11 @@ export function buildPaymentInfo(batch: PaymentBatch, creationDate: Date = new D
   return {
     PmtInfId: pmtInfId,
     PmtMtd: 'TRF',
-    BtchBookg: batch.batchBooking,
-    NbOfTxs: String(batch.transactions.length),
-    CtrlSum: batch.transactions.reduce((sum, tx) => sum + tx.amount, 0).toFixed(2),
+    ...(batch.batchBooking !== undefined ? { BtchBookg: batch.batchBooking } : {}),
     PmtTpInf: {
+      InstrPrty: 'NORM',
       SvcLvl: { Cd: 'SEPA' },
-      CtgyPurp: { Cd: 'SUPP' },
+      LclInstrm: { Cd: 'SEPA' },
     },
     ReqdExctnDt: { Dt: batch.executionDate },
     Dbtr: {
@@ -23,14 +22,18 @@ export function buildPaymentInfo(batch: PaymentBatch, creationDate: Date = new D
     DbtrAcct: {
       Id: { IBAN: batch.initiator.iban },
     },
-    DbtrAgt: {
-      FinInstnId: {
-        ClrSysMmbId: {
-          ClrSysId: { Cd: 'ITNCC' },
-          MmbId: batch.initiator.abi,
-        },
-      },
-    },
+    ...(batch.initiator.abi
+      ? {
+          DbtrAgt: {
+            FinInstnId: {
+              ClrSysMmbId: {
+                MmbId: batch.initiator.abi,
+              },
+            },
+          },
+        }
+      : {}),
+    ChrgBr: 'SLEV',
     CdtTrfTxInf: batch.transactions.map((tx, i) => buildTransaction(tx, i, creationDate)),
   };
 }
