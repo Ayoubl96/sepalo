@@ -19,7 +19,7 @@ export function buildGroupHeader(batch: PaymentBatch, creationDate: Date = new D
         OrgId: {
           Othr: {
             Id: batch.initiator.identifier.value,
-            SchmeNm: { Cd: batch.initiator.identifier.type },
+            Issr: batch.initiator.identifier.type,
           },
         },
       },

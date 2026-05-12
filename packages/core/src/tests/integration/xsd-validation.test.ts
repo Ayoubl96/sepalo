@@ -44,7 +44,7 @@ describe('validateAgainstXsd — invalid XML', () => {
     expect(result.errors.length).toBeGreaterThan(0);
   });
 
-  it('rejects XML missing required GrpHdr', async () => {
+  it('rejects XML missing required CBIEnvelPaymentRequest wrapper', async () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <CBIBdyPaymentRequest xmlns="urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01">
   <PmtInf><PmtInfId>PMT001</PmtInfId><PmtMtd>TRF</PmtMtd></PmtInf>
@@ -69,7 +69,9 @@ describe('generatePaymentFile — orchestrator', () => {
     const result = await generatePaymentFile(fixture06 as PaymentBatch);
     expect(result.errors).toHaveLength(0);
     expect(result.xml).toContain('<CBIBdyPaymentRequest');
-    expect(result.xml).toContain('<MsgId>');
+    expect(result.xml).toContain('<CBIEnvelPaymentRequest>');
+    expect(result.xml).toContain('<CBIPaymentRequest>');
+    expect(result.xml).toContain('<pmrq:MsgId>');
   });
 
   it('includes business errors when initiator IBAN is invalid', async () => {

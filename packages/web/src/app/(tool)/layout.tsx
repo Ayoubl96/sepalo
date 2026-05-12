@@ -1,5 +1,6 @@
 import { PinGuard } from '@/components/auth/PinGuard';
 import { Logo } from '@/components/layout/Logo';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
 
 const workLinks = [
@@ -73,7 +74,9 @@ export default function ToolLayout({ children }: { children: React.ReactNode }) 
       </aside>
 
       <main className="flex-1 overflow-y-auto">
-        <PinGuard>{children}</PinGuard>
+        <TooltipProvider>
+          <PinGuard>{children}</PinGuard>
+        </TooltipProvider>
       </main>
     </div>
   );
