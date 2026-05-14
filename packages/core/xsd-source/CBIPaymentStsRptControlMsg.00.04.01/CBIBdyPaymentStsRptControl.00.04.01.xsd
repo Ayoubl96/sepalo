@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 rel. 2 (x64) (http://www.altova.com) by Ivana Gargiulo (CONSORZIO CUSTOMER TO BUSINESS INTERACTION - CBI) -->
+<!-- Entrata in vigore: 17/03/2024 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="urn:CBI:xsd:CBIBdyPaymentStsRptControl.00.04.01" targetNamespace="urn:CBI:xsd:CBIBdyPaymentStsRptControl.00.04.01" elementFormDefault="qualified">
+	<!-- Body structure declaration -->
+	<xs:element name="CBIBdyPaymentStsRptControl" type="CBIBdyPaymentStsRptControl.00.04.01"/>
+	<!-- Body structure definition -->
+	<xs:complexType name="CBIBdyPaymentStsRptControl.00.04.01">
+		<xs:sequence>
+			<xs:element name="InfOrgnlMsg" type="InformationOriginalMessage"/>
+			<xs:element name="InfOrgnlStsRpt" type="InformationOriginalStsRpt" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- InformationOriginalMessage structure definition -->
+	<xs:complexType name="InformationOriginalMessage">
+		<xs:sequence>
+			<xs:element name="IdE2EMsg" type="IdE2EMsg1"/>
+			<xs:element name="CreDtTm" type="ISODateTime"/>
+			<xs:element name="SndMsgSts" type="SndSts1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- InformationOriginalStsRpt structure definition -->
+	<xs:complexType name="InformationOriginalStsRpt">
+		<xs:sequence>
+			<xs:element name="OrgnlMsgId" type="Max35Text"/>
+			<xs:element name="OrgnlCreDtTm" type="ISODateTime"/>
+			<xs:element name="OrgnlStsRptSts" type="SndSts1"/>
+			<xs:element name="OrgnlRfedTx" type="OriginalReferencedTransaction" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Send Status structure definition -->
+	<xs:complexType name="SndSts1">
+		<xs:choice>
+			<xs:element name="PrgSts" type="PrgSts1"/>
+			<xs:sequence>
+				<xs:element name="PrgStsKO" type="PrgSts2"/>
+				<xs:element name="ErrMsgCd" type="ErrMsgCd1"/>
+				<xs:element name="DscMsgCd" type="Max256Text" minOccurs="0"/>
+				<xs:element name="ElmNm" type="Max256Text" minOccurs="0"/>
+			</xs:sequence>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="OriginalReferencedTransaction">
+		<xs:sequence>
+			<xs:element name="OrgnlRfedInstrId" type="Max35Text"/>
+			<xs:element name="OrgnRfedEndToEndId" type="Max35Text"/>
+			<xs:element name="DscMsgCd" type="Max256Text" minOccurs="0"/>
+			<xs:element name="ElmNm" type="Max256Text" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ErrMsgCd1">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="XML Error"/>
+			<xs:enumeration value="Validity Error"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="IdE2EMsg1">
+		<xs:restriction base="Max44Text">
+			<xs:pattern value="[a-zA-Z0-9]{44,44}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ISODate">
+		<xs:restriction base="xs:date"/>
+	</xs:simpleType>
+	<xs:simpleType name="ISODateTime">
+		<xs:restriction base="xs:dateTime"/>
+	</xs:simpleType>
+	<xs:simpleType name="Max35Text">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="35"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Max44Text">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="44"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Max140Text">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="140"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Max256Text">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="256"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PrgSts1">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Received"/>
+			<xs:enumeration value="Payment Status Report Error"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PrgSts2">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Error Detected"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

@@ -40,6 +40,15 @@
     }
   },
   "files": {
-    "ignore": ["node_modules", ".next", "dist", "coverage", "*.min.js", ".changeset"]
+    "ignore": [
+      "node_modules",
+      ".next",
+      "dist",
+      "coverage",
+      "*.min.js",
+      ".changeset",
+      "**/data/xsd/index.ts",
+      "**/public/vendor/**"
+    ]
   }
 }

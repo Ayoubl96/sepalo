@@ -112,6 +112,9 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@20.19.40)(lightningcss@1.32.0)
+      xmllint-wasm:
+        specifier: ^5.2.0
+        version: 5.2.0(@types/node@20.19.40)
 
 packages:
 

@@ -80,6 +80,16 @@ export function validatePayment(batch: PaymentBatch): ValidationResult {
       });
     }
 
+    // Remittance info length (XSD Max140Text: minLength=1, maxLength=140)
+    if (tx.remittanceInfo.length < 1 || tx.remittanceInfo.length > 140) {
+      errors.push({
+        path: `transactions[${i}].remittanceInfo`,
+        code: 'REMITTANCE_LENGTH',
+        message: 'Remittance info must be 1–140 characters',
+        rowNumber: row,
+      });
+    }
+
     // Remittance info SEPA charset
     const remittance = sanitize(tx.remittanceInfo);
     if (remittance.replacements.length > 0) {
@@ -87,6 +97,16 @@ export function validatePayment(batch: PaymentBatch): ValidationResult {
         path: `transactions[${i}].remittanceInfo`,
         code: 'SEPA_CHARSET_SANITIZED',
         message: `${remittance.replacements.length} character(s) will be substituted to comply with SEPA charset`,
+        rowNumber: row,
+      });
+    }
+
+    // Beneficiary name length (XSD Max70Text: minLength=1, maxLength=70)
+    if (tx.beneficiary.name.length < 1 || tx.beneficiary.name.length > 70) {
+      errors.push({
+        path: `transactions[${i}].beneficiary.name`,
+        code: 'BENEFICIARY_NAME_LENGTH',
+        message: 'Beneficiary name must be 1–70 characters',
         rowNumber: row,
       });
     }

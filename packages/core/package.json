@@ -18,7 +18,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "biome check ."
+    "lint": "biome check .",
+    "embed:xsd": "node scripts/embed-xsd.mjs"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

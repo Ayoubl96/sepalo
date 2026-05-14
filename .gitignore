@@ -35,3 +35,6 @@ pnpm-debug.log*
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Vendored runtime assets (regenerated via packages/web postinstall)
+packages/web/public/vendor/
