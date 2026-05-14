@@ -32,7 +32,7 @@ const FIELDS: { key: keyof ColumnMap; label: string; required: boolean }[] = [
   { key: 'beneficiaryName', label: 'Beneficiary name', required: true },
   { key: 'beneficiaryIban', label: 'Beneficiary IBAN', required: true },
   { key: 'amount', label: 'Amount (€)', required: true },
-  { key: 'remittanceInfo', label: 'Remittance info / description', required: true },
+  { key: 'remittanceInfo', label: 'Remittance info / description', required: false },
   { key: 'beneficiaryBic', label: 'BIC / SWIFT', required: false },
 ];
 

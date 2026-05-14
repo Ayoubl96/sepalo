@@ -12,9 +12,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useProfile } from '@/hooks/useProfile';
-import type { ParsedSheet } from '@/lib/parse';
+import { type ParsedSheet, parseAmount } from '@/lib/parse';
+import { validateXmlClientSide } from '@/lib/xsd';
 import { buildXml, validatePayment } from '@sepalo/core';
-import { AlertCircleIcon, DownloadIcon } from 'lucide-react';
+import { AlertCircleIcon, DownloadIcon, Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
 import type { ColumnMap } from './MapStep';
 
@@ -31,32 +32,53 @@ export function ReviewStep({ sheet, columnMap, onBack, onReset }: ReviewStepProp
   const [batchBooking, setBatchBooking] = useState(false);
   const [errors, setErrors] = useState<{ path: string; message: string }[]>([]);
   const [xmlBlob, setXmlBlob] = useState<Blob | null>(null);
+  const [generating, setGenerating] = useState(false);
 
-  const transactions = sheet.rows.map((row) => ({
-    amount: parseAmount(row[columnMap.amount] ?? ''),
-    beneficiary: {
-      name: row[columnMap.beneficiaryName] ?? '',
-      iban: (row[columnMap.beneficiaryIban] ?? '').replace(/\s/g, ''),
-      bic: columnMap.beneficiaryBic ? row[columnMap.beneficiaryBic] || undefined : undefined,
-    },
-    remittanceInfo: row[columnMap.remittanceInfo] ?? '',
-  }));
+  const remittanceMapped = columnMap.remittanceInfo !== '';
+
+  const transactions = sheet.rows.map((row) => {
+    const name = row[columnMap.beneficiaryName] ?? '';
+    return {
+      amount: parseAmount(row[columnMap.amount] ?? ''),
+      beneficiary: {
+        name,
+        iban: (row[columnMap.beneficiaryIban] ?? '').replace(/\s/g, ''),
+        bic: columnMap.beneficiaryBic ? row[columnMap.beneficiaryBic] || undefined : undefined,
+      },
+      remittanceInfo: remittanceMapped
+        ? (row[columnMap.remittanceInfo] ?? '')
+        : `Pagamento ${name}`.trim(),
+    };
+  });
 
   const totalAmount = transactions.reduce((s, t) => s + t.amount, 0);
   const preview = transactions.slice(0, 5);
 
-  function generate() {
+  async function generate() {
     if (!profile) return;
     setErrors([]);
     setXmlBlob(null);
-    const batch = { initiator: profile, executionDate, batchBooking, transactions };
-    const { errors: validationErrors } = validatePayment(batch);
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
+    setGenerating(true);
+    try {
+      const batch = { initiator: profile, executionDate, batchBooking, transactions };
+
+      const { errors: businessErrors } = validatePayment(batch);
+      if (businessErrors.length > 0) {
+        setErrors(businessErrors);
+        return;
+      }
+
+      const xml = buildXml(batch);
+      const xsdErrors = await validateXmlClientSide(xml);
+      if (xsdErrors.length > 0) {
+        setErrors(xsdErrors);
+        return;
+      }
+
+      setXmlBlob(new Blob([xml], { type: 'application/xml' }));
+    } finally {
+      setGenerating(false);
     }
-    const xml = buildXml(batch);
-    setXmlBlob(new Blob([xml], { type: 'application/xml' }));
   }
 
   function download() {
@@ -185,8 +207,15 @@ export function ReviewStep({ sheet, columnMap, onBack, onReset }: ReviewStepProp
         <Button variant="outline" onClick={onBack}>
           Back
         </Button>
-        <Button onClick={generate} disabled={!!xmlBlob}>
-          Generate XML
+        <Button onClick={generate} disabled={!!xmlBlob || generating}>
+          {generating ? (
+            <>
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              Validating…
+            </>
+          ) : (
+            'Generate XML'
+          )}
         </Button>
         {xmlBlob && (
           <Button variant="ghost" onClick={onReset}>
@@ -196,11 +225,6 @@ export function ReviewStep({ sheet, columnMap, onBack, onReset }: ReviewStepProp
       </div>
     </div>
   );
-}
-
-function parseAmount(raw: string): number {
-  const n = Number.parseFloat(raw.replace(',', '.').replace(/[^\d.-]/g, ''));
-  return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
 }
 
 function todayIso(): string {

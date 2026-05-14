@@ -35,6 +35,11 @@ export {
 export { sanitize, isSepaCompliant } from './validators/sepa-charset.js';
 export { validateTotals } from './validators/totals.js';
 export { validateAgainstXsd } from './validators/xsd.js';
+export {
+  CBI_BODY_XSD,
+  CBI_PAYMENT_REQUEST_XSD,
+  CBI_SGN_INF_XSD,
+} from './data/xsd/index.js';
 
 export { generatePaymentFile } from './api/generate.js';
 export type { GenerateResult } from './api/generate.js';

@@ -18,8 +18,8 @@ describe('validateAgainstXsd — valid XML', () => {
   it('passes for fixture 01 (single IT transaction)', async () => {
     const xml = buildFixed(fixture01 as PaymentBatch);
     const result = await validateAgainstXsd(xml);
+    expect(result.errors, JSON.stringify(result.errors, null, 2)).toHaveLength(0);
     expect(result.valid).toBe(true);
-    expect(result.errors).toHaveLength(0);
   });
 
   it('passes for fixture 02 (multiple transactions)', async () => {
@@ -61,6 +61,18 @@ describe('validateAgainstXsd — invalid XML', () => {
 </Document>`;
     const result = await validateAgainstXsd(xml);
     expect(result.valid).toBe(false);
+  });
+
+  it('rejects an empty <Ustrd> remittance element (Max140Text minLength=1)', async () => {
+    // Build a valid XML, then replace the Ustrd text with an empty one to
+    // reproduce the bank-rejection scenario reported by Intesa.
+    const xml = buildFixed(fixture01 as PaymentBatch).replace(
+      /<pmrq:Ustrd>[^<]*<\/pmrq:Ustrd>/,
+      '<pmrq:Ustrd></pmrq:Ustrd>',
+    );
+    const result = await validateAgainstXsd(xml);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => /Ustrd|Max140Text/.test(e.message))).toBe(true);
   });
 });
 

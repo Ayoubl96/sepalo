@@ -47,6 +47,12 @@ const FIELD_KEYWORDS: Record<string, string[]> = {
   remittanceInfo: ['description', 'descrizione', 'remittance', 'causale', 'note', 'notes'],
 };
 
+export function parseAmount(raw: string): number {
+  const n = Number.parseFloat(raw.replace(',', '.').replace(/[^\d.-]/g, ''));
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(Math.abs(n) * 100) / 100;
+}
+
 export function autoDetectColumns(headers: string[]): Record<string, string> {
   const lower = headers.map((h) => h.toLowerCase());
   const result: Record<string, string> = {};
