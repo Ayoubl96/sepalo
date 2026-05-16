@@ -1,6 +1,9 @@
 # Sepalo — Development Plan
 
 > Living document. Updated after each completed milestone.
+>
+> **Current state:** `main` is at post-`v0.3.0` (PR #18 merged, untagged).
+> M0–M3 core complete. Address book (M4 Task 4.1) shipped early as part of M2. M4 Task 4.2, M5–M8 pending.
 
 ---
 
@@ -106,25 +109,19 @@ Next.js API Routes are used only for sitemap and robots (static pages). No API r
 
 Before implementing the XML builder, apply these corrections:
 
-### 1. `DbtrAgt` — add `ClrSysId/Cd = ITNCC`
+### 1. `DbtrAgt` — `MmbId` only (no `ClrSysId`)
 
-Current spec (incomplete):
-```
-PmtInf/DbtrAgt/FinInstnId/ClrSysMmbId/MmbId → ABI code
-```
+The official `CBIPaymentRequest.00.04.01.xsd` does not include `ClrSysId` inside `ClrSysMmbId` for this profile. Only `MmbId` (ABI code) is required.
 
 Correct XML structure:
 ```xml
-<DbtrAgt>
-  <FinInstnId>
-    <ClrSysMmbId>
-      <ClrSysId>
-        <Cd>ITNCC</Cd>
-      </ClrSysId>
-      <MmbId>02008</MmbId>
-    </ClrSysMmbId>
-  </FinInstnId>
-</DbtrAgt>
+<pmrq:DbtrAgt>
+  <pmrq:FinInstnId>
+    <pmrq:ClrSysMmbId>
+      <pmrq:MmbId>02008</pmrq:MmbId>
+    </pmrq:ClrSysMmbId>
+  </pmrq:FinInstnId>
+</pmrq:DbtrAgt>
 ```
 
 ### 2. `ReqdExctnDt` — mandatory `<Dt>` sub-element
@@ -132,9 +129,9 @@ Correct XML structure:
 CBIBdyPaymentRequest.00.04.01 is based on pain.001.001.09 where `ReqdExctnDt` is a `DateAndDateTime2Choice`. The value is not inline but in a sub-element:
 
 ```xml
-<ReqdExctnDt>
-  <Dt>2024-12-15</Dt>
-</ReqdExctnDt>
+<pmrq:ReqdExctnDt>
+  <pmrq:Dt>2024-12-15</pmrq:Dt>
+</pmrq:ReqdExctnDt>
 ```
 
 Not `<ReqdExctnDt>2024-12-15</ReqdExctnDt>` (that is the pain.001.001.03 format).
@@ -149,9 +146,31 @@ Not `<ReqdExctnDt>2024-12-15</ReqdExctnDt>` (that is the pain.001.001.03 format)
 
 "Foreign IBAN" in the spec is ambiguous. Use this table as the reference in the builder.
 
-### 4. Root element — verify from official XSD
+### 4. Dual-namespace structure
 
-The spec does not specify whether the root element is `CBIBdyPaymentRequest` or `Document`. Verify by opening `CBIBdyPaymentRequest.00.04.01.xsd` when downloading it (Task 1.6). The namespace `urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01` is correct.
+The CBI XML uses two namespaces:
+- Outer envelope (`CBIBdyPaymentRequest`, `CBIEnvelPaymentRequest`, `CBIPaymentRequest`) → `urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01` (default namespace, no prefix)
+- All payment content (`GrpHdr`, `PmtInf` and all descendants) → `urn:CBI:xsd:CBIPaymentRequest.00.04.01` with `pmrq:` prefix
+
+### 5. `InitgPty` identifier — use `Issr`, not `SchmeNm/Cd`
+
+The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
+```xml
+<pmrq:Othr>
+  <pmrq:Id>ABC12345</pmrq:Id>
+  <pmrq:Issr>CUC</pmrq:Issr>
+</pmrq:Othr>
+```
+
+### 6. `PmtTpInf` — correct structure
+
+```xml
+<pmrq:PmtTpInf>
+  <pmrq:InstrPrty>NORM</pmrq:InstrPrty>
+  <pmrq:SvcLvl><pmrq:Cd>SEPA</pmrq:Cd></pmrq:SvcLvl>
+  <pmrq:LclInstrm><pmrq:Cd>SEPA</pmrq:Cd></pmrq:LclInstrm>
+</pmrq:PmtTpInf>
+```
 
 ---
 
@@ -162,47 +181,47 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 ### M0 — Setup (v0.0.1 → v0.0.4)
 
 #### Task 0.1 — Init monorepo
-**Branch:** `chore/init-monorepo` → **Tag:** `v0.0.1`
+**Branch:** `chore/init-monorepo` → **Tag:** `v0.0.1` ✅
 
-- [ ] Directory structure: `packages/core/`, `packages/web/`, `docs/`
-- [ ] `pnpm-workspace.yaml` with both packages
-- [ ] Root `package.json` with top-level scripts (`lint`, `typecheck`, `test`, `build`)
-- [ ] Shared `tsconfig.base.json` (strict, paths)
-- [ ] `biome.json` with strict rules, organize imports
-- [ ] `.gitignore` (node_modules, .next, dist, coverage, .env)
-- [ ] `LICENSE` (MIT)
-- [ ] `README.md` with placeholder (logo, tagline, links)
-- [ ] `CONTRIBUTING.md` (local setup, commit conventions)
-- [ ] `CODE_OF_CONDUCT.md` (Contributor Covenant)
-- [ ] `@changesets/cli` configured
+- [x] Directory structure: `packages/core/`, `packages/web/`, `docs/`
+- [x] `pnpm-workspace.yaml` with both packages
+- [x] Root `package.json` with top-level scripts (`lint`, `typecheck`, `test`, `build`)
+- [x] Shared `tsconfig.base.json` (strict, paths)
+- [x] `biome.json` with strict rules, organize imports
+- [x] `.gitignore` (node_modules, .next, dist, coverage, .env)
+- [x] `LICENSE` (MIT)
+- [x] `README.md` with placeholder (logo, tagline, links)
+- [x] `CONTRIBUTING.md` (local setup, commit conventions)
+- [x] `CODE_OF_CONDUCT.md` (Contributor Covenant)
+- [x] `@changesets/cli` configured
 
 **Done when:** `pnpm install` succeeds, biome finds no errors on empty files.
 
 ---
 
 #### Task 0.2 — Base CI
-**Branch:** `chore/ci-setup` → **Tag:** `v0.0.2`
+**Branch:** `chore/ci-setup` → **Tag:** `v0.0.2` ✅
 
-- [ ] `.github/workflows/ci.yml`: trigger on PR + push to `main`
+- [x] `.github/workflows/ci.yml`: trigger on PR + push to `main`
   - Steps: checkout → setup pnpm → cache → install → lint → typecheck → test → build
   - Placeholder test that passes (1 trivial test per package)
-- [ ] `.github/workflows/e2e.yml`: placeholder with explicit skip (enabled: false)
-- [ ] `.github/workflows/release.yml`: Changesets flow (version → auto PR → publish on merge)
-- [ ] `@changesets/cli` configured for `@sepalo/core` (basePath: packages/core)
-- [ ] `.changeset/config.json` with `access: public`
+- [x] `.github/workflows/e2e.yml`: placeholder with explicit skip (enabled: false)
+- [x] `.github/workflows/release.yml`: Changesets flow (version → auto PR → publish on merge)
+- [x] `@changesets/cli` configured for `@sepalo/core` (basePath: packages/core)
+- [x] `.changeset/config.json` with `access: public`
 
 **Done when:** CI is green on GitHub for a test PR.
 
 ---
 
 #### Task 0.3 — Next.js 15 app shell
-**Branch:** `chore/nextjs-setup` → **Tag:** `v0.0.3`
+**Branch:** `chore/nextjs-setup` → **Tag:** `v0.0.3` ✅
 
-- [ ] `packages/web`: `create-next-app` with App Router + TypeScript + Tailwind
-- [ ] Tailwind CSS v4 configured
-- [ ] shadcn/ui init (`components.json`, path: `src/components/ui`)
-- [ ] `next/font` with Inter (UI) + JetBrains Mono (code/XML)
-- [ ] App Router routing structure:
+- [x] `packages/web`: `create-next-app` with App Router + TypeScript + Tailwind
+- [x] Tailwind CSS v4 configured
+- [x] shadcn/ui init (`components.json`, path: `src/components/ui`)
+- [x] `next/font` with Inter (UI) + JetBrains Mono (code/XML)
+- [x] App Router routing structure:
   ```
   app/
   ├── (public)/          ← server components, SSR/SSG
@@ -222,17 +241,10 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
   ├── robots.ts
   └── not-found.tsx
   ```
-- [ ] Header (server component): logo + nav links (mobile: hamburger)
-- [ ] Footer (server component): copyright, GitHub, license, version
-- [ ] `vercel.json` with security headers:
-  ```json
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' [rybbit-domain]; ...
-  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: no-referrer
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  ```
-- [ ] `packages/web/package.json` with `@sepalo/core` alias → `../../packages/core`
+- [x] Header (server component): logo + nav links (mobile: hamburger)
+- [x] Footer (server component): copyright, GitHub, license, version
+- [x] `vercel.json` with security headers
+- [x] `packages/web/package.json` with `@sepalo/core` alias → `../../packages/core`
 
 **Done when:** `pnpm dev` shows home placeholder. `pnpm build` produces output without errors.
 
@@ -254,9 +266,9 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 ### M1 — Core: types, validators, XML builder (v0.1.0)
 
 #### Task 1.1 — Types and Zod schemas
-**Branch:** `feat/core-types`
+**Branch:** `feat/core-types` ✅
 
-- [ ] `packages/core/src/types/index.ts`:
+- [x] `packages/core/src/types/index.ts`:
   ```ts
   PartyIdentifier (CUC | CF)
   Initiator { name, identifier, iban, abi }
@@ -267,142 +279,102 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
   ValidationError { path, code, message, rowNumber? }
   ValidationWarning { path, code, message, rowNumber? }
   ```
-- [ ] `packages/core/src/schemas/payment.ts`: Zod schemas with `z.infer` (no hand-duplicated types)
-- [ ] `packages/core/src/index.ts`: barrel file (exports types and public API only)
-- [ ] `packages/core/package.json`: `name: @sepalo/core`, `version: 0.0.1`, exports field
-- [ ] Unit tests: schema accepts valid batch, rejects invalid with specific message (≥5 cases per type)
+- [x] `packages/core/src/schemas/payment.ts`: Zod schemas with `z.infer` (no hand-duplicated types)
+- [x] `packages/core/src/index.ts`: barrel file (exports types and public API only)
+- [x] `packages/core/package.json`: `name: @sepalo/core`, `version: 0.0.1`, exports field
+- [x] Unit tests: schema accepts valid batch, rejects invalid with specific message (≥5 cases per type)
 
 **Done when:** `pnpm --filter @sepalo/core test` is green. No explicit `any`.
 
 ---
 
 #### Task 1.2 — IBAN validator
-**Branch:** `feat/core-validator-iban`
+**Branch:** `feat/core-validator-iban` ✅
 
-- [ ] `validators/iban.ts`:
+- [x] `validators/iban.ts`:
   ```ts
   validateIban(iban: string): { valid: boolean; country: string; isSepa: boolean; isItalian: boolean }
   ```
   - mod-97 algorithm (rearrange + numeric conversion + modulo)
   - For Italian IBANs (IT): also verify CIN (check character at position 5)
   - SEPA country lookup (static list in file, updatable)
-- [ ] Tests: ≥10 valid IBANs (IT, DE, FR, ES, SM, GB, US extra-SEPA), ≥10 invalid (bad checksum, wrong length, invalid chars, wrong CIN for IT IBAN)
+- [x] Tests: ≥10 valid IBANs (IT, DE, FR, ES, SM, GB, US extra-SEPA), ≥10 invalid (bad checksum, wrong length, invalid chars, wrong CIN for IT IBAN)
 
 **Done when:** 100% coverage of file, all tests green.
 
 ---
 
 #### Task 1.3 — ABI validator + lookup table
-**Branch:** `feat/core-validator-abi`
+**Branch:** `feat/core-validator-abi` ✅
 
-- [ ] `data/abi-list.json`: list of active Italian bank ABI codes
-  - Source: Banca d'Italia — Infostat portal (`infostat.bancaditalia.it`), registers section, Excel export → manual JSON conversion
-  - Format: `{ "02008": "UniCredit S.p.A.", "03069": "Intesa Sanpaolo S.p.A.", ... }`
-  - Active banks only (not cancelled)
-  - Note in core README: "ABI list sourced from Banca d'Italia Infostat register. Update quarterly."
-  - Update process documented in `docs/UPDATE_ABI_LIST.md`
-- [ ] `validators/abi.ts`:
+- [x] `data/abi-list.json`: list of active Italian bank ABI codes
+- [x] `validators/abi.ts`:
     ```ts
-    validateAbi(abi: string): boolean  // 5 digits + presence in lookup
+    validateAbi(abi: string): boolean
     getAbiName(abi: string): string | undefined
     ```
-- [ ] `utils/iban-to-abi.ts`:
+- [x] `utils/iban-to-abi.ts`:
     ```ts
-    extractAbiFromIban(iban: string): string | null  // positions 6-10 if IT IBAN
+    extractAbiFromIban(iban: string): string | null
     ```
-- [ ] Tests: valid ABI present in list, ABI fewer than 5 digits, ABI not in list, extraction from valid/invalid IT IBAN
+- [x] Tests: valid ABI present in list, ABI fewer than 5 digits, ABI not in list, extraction from valid/invalid IT IBAN
 
 **Done when:** package builds successfully with `abi-list.json` bundled.
 
 ---
 
 #### Task 1.4 — CUC, CF/PIVA, SEPA charset, totals validators
-**Branch:** `feat/core-validators-misc`
+**Branch:** `feat/core-validators-misc` ✅
 
-- [ ] `validators/cuc.ts`: 8 alphanumeric characters `[A-Z0-9]{8}`
-- [ ] `validators/fiscal-code.ts`:
+- [x] `validators/cuc.ts`: 8 alphanumeric characters `[A-Z0-9]{8}`
+- [x] `validators/fiscal-code.ts`:
   - CF: 16 characters, check algorithm (final control character)
   - P.IVA: 11 digits, check algorithm (final control digit)
   - Accepts both (CF/PIVA are both valid as `Issr=CF`)
-- [ ] `validators/sepa-charset.ts`:
+- [x] `validators/sepa-charset.ts`:
   ```ts
-  sanitize(text: string): { sanitized: string; replaced: Array<{position: number; original: string; replacement: string}> }
+  sanitize(text: string): { sanitized: string; replaced: ... }
   isSepaCompliant(text: string): boolean
   ```
-  - Charset: `a-z A-Z 0-9 / - ? : ( ) . , ' + space`
-  - Accent substitution: à→a, è→e, é→e, ì→i, ò→o, ù→u, ç→c, ñ→n, etc.
-  - Unmappable characters: replaced with space + warning
-- [ ] `validators/totals.ts`:
-  ```ts
-  validateTotals(batch: PaymentBatch): ValidationError[]
-  // GrpHdr/NbOfTxs == count(transactions)
-  // GrpHdr/CtrlSum == sum(amounts) rounded to 2 decimal places
-  ```
-- [ ] `validators/index.ts`:
-  ```ts
-  validatePayment(batch: PaymentBatch): ValidationResult
-  ```
-  Orchestrator: calls all validators, aggregates errors and warnings
-- [ ] Tests: ≥5 positive + ≥5 negative for each
+- [x] `validators/totals.ts`: validates NbOfTxs and CtrlSum
+- [x] `validators/index.ts`: `validatePayment` orchestrator
+- [x] Tests: ≥5 positive + ≥5 negative for each
+- [x] remittanceInfo 1–140 chars enforced (added in PR #18)
+- [x] beneficiary name 1–70 chars enforced (added in PR #18)
 
 **Done when:** `validatePayment` covered at ≥90% coverage.
 
 ---
 
 #### Task 1.5 — XML builder
-**Branch:** `feat/core-xml-builder`
+**Branch:** `feat/core-xml-builder` ✅
 
-- [ ] `utils/id-generator.ts`: generates unique IDs in format `{PREFIX}{YYYYMMDDHHmmss}{random6alphanum}`
-- [ ] `utils/sanitize.ts`: applies `sanitize()` from sepa-charset to text fields (Nm, RmtInf/Ustrd)
-- [ ] `builders/group-header.ts`: builds GrpHdr object for fast-xml-parser
-- [ ] `builders/payment-info.ts`: builds PmtInf object. `ReqdExctnDt` → `{ Dt: "YYYY-MM-DD" }` (sub-element)
-- [ ] `builders/transaction.ts`:
-  - `CdtrAgt` present only if beneficiary IBAN is not IT/SM
-  - If non-IT SEPA IBAN: use BIC if provided, otherwise `{ BICFI: "NOTPROVIDED" }`
-  - If extra-SEPA IBAN: BIC mandatory (validation error if missing)
-  - `DbtrAgt` with full structure `ClrSysId/Cd=ITNCC` + `MmbId=ABI`
-- [ ] `builders/document.ts`:
-  ```ts
-  buildXml(batch: PaymentBatch): string
-  ```
-  - Output with `<?xml version="1.0" encoding="UTF-8"?>`
-  - Namespace `urn:CBI:xsd:CBIBdyPaymentRequest.00.04.01`
-  - Root element verified against XSD (presumably `CBIBdyPaymentRequest`)
-  - Generated with fast-xml-parser (never string concatenation)
-- [ ] `tests/fixtures/input/`: 5 PaymentBatch JSON files
-  - `01-single-tx.json`: 1 transaction, IT IBAN
-  - `02-multi-tx.json`: 10 transactions, mixed IT IBAN
-  - `03-foreign-iban.json`: DE IBAN, with BIC
-  - `04-large-amounts.json`: amounts at limit (999999999.99)
-  - `05-special-chars.json`: remittance info with accents and special characters
-- [ ] `tests/fixtures/expected/`: corresponding golden XML files
-- [ ] `tests/integration/pipeline.test.ts`: PaymentBatch → buildXml → byte-for-byte match with golden files
+- [x] `utils/id-generator.ts`: unique IDs `{PREFIX}{YYYYMMDDHHmmss}{random6alphanum}`
+- [x] `utils/sanitize.ts`: applies SEPA charset sanitize to text fields
+- [x] `builders/group-header.ts`: builds GrpHdr with dual-namespace structure
+- [x] `builders/payment-info.ts`: builds PmtInf — `ReqdExctnDt → { Dt: "YYYY-MM-DD" }`, correct PmtTpInf, ChrgBr SLEV
+- [x] `builders/transaction.ts`:
+  - `CdtrAgt` absent for IT IBAN, BICFI for non-IT SEPA, mandatory for extra-SEPA
+  - `DbtrAgt` with `MmbId` only (no ClrSysId per official XSD)
+- [x] `builders/document.ts`: dual-namespace XML output (outer body NS + pmrq: prefix for content)
+- [x] `tests/fixtures/input/`: 6 PaymentBatch JSON files (01–06)
+- [ ] `tests/fixtures/expected/`: golden XML files (tests use structural assertions instead)
+- [x] `tests/integration/pipeline.test.ts`: structural assertions for all fixtures
 
-**Done when:** all 5 golden files match. `pnpm --filter @sepalo/core test` 100% green.
+**Done when:** all fixtures pass XSD validation. `pnpm --filter @sepalo/core test` 100% green.
 
 ---
 
 #### Task 1.6 — XSD validation + public API
-**Branch:** `feat/core-xsd-validation` → **Tag:** `v0.1.0`
+**Branch:** `feat/core-xsd-validation` → **Tag:** `v0.1.0` ✅
 
-- [ ] Download `CBIBdyPaymentRequest.00.04.01.xsd` from `cbiservice.com` and commit to `data/xsd/`
-- [ ] Verify and fix the root element in the builder (Task 1.5) by comparing against XSD
-- [ ] Verify that `ReqdExctnDt/Dt` is correct per XSD
-- [ ] `validators/xsd.ts`:
-  ```ts
-  validateAgainstXsd(xml: string): Promise<ValidationResult>
-  ```
-  - Lazy-load xmllint-wasm (only on first use, ~500KB WASM)
-  - Errors with XPath path and human-readable description
-- [ ] `index.ts` barrel: exports public API
-  ```ts
-  export { validatePayment, buildXml, validateAgainstXsd, generatePaymentFile }
-  export type { PaymentBatch, Transaction, Initiator, Beneficiary, ValidationResult, ... }
-  ```
-- [ ] `generatePaymentFile(batch: PaymentBatch): Promise<{ xml: string; errors: ValidationError[]; warnings: ValidationWarning[] }>`
-  Orchestrator: `validatePayment` → if critical errors, stop → `buildXml` → `validateAgainstXsd`
-- [ ] Integration test: all 5 fixtures pass XSD validation. Negative test: payload with missing mandatory field → error with XPath
-- [ ] Changeset for `@sepalo/core` version `0.1.0`
+- [x] Official CBI XSDs committed to `xsd-source/` (CBIPaymentRequestMsg.00.04.01 + others)
+- [x] `scripts/embed-xsd.mjs`: embeds official XSD content into `data/xsd/index.ts` at build time
+- [x] `validators/xsd.ts`: `validateAgainstXsd(xml)` with main schema + preloaded deps (xmllint-wasm convention)
+- [x] `index.ts` barrel: exports public API including `CBI_BODY_XSD`, `CBI_PAYMENT_REQUEST_XSD`
+- [x] `generatePaymentFile(batch)`: orchestrator — validate → build → XSD validate
+- [x] Integration tests: fixtures 01–03 pass XSD validation; negative tests for malformed/missing elements
+- [ ] Changeset for `@sepalo/core` version `0.1.0` (pending npm publish setup in M8)
 
 **Done when:** `generatePaymentFile` produces valid XML for all golden files. XSD validation green.
 
@@ -411,165 +383,154 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 ### M2 — Web: foundation + auth (v0.2.0)
 
 #### Task 2.1 — Design system and layout
-**Branch:** `feat/web-layout`
+**Branch:** `feat/web-layout` ✅
 
-- [ ] Colour palette configured in Tailwind: primary `#1B2A56`, accent `#2E7D5B`, neutral greys
-- [ ] shadcn/ui components installed: Button, Input, Card, Dialog, Table, Badge, Tooltip, Sheet (for mobile nav)
-- [ ] `app/(public)/layout.tsx`: header server component with logo + desktop nav + mobile hamburger
-- [ ] `app/(tool)/layout.tsx`: simplified header + PinGuard wrapper (client)
-- [ ] `app/not-found.tsx`: custom 404 page
-- [ ] `app/error.tsx`: error boundary with user-friendly message
-- [ ] Placeholder page for every route (returns `<h1>page name</h1>`)
+- [x] Colour palette configured in Tailwind: primary `#1B2A56`, accent `#2E7D5B`, neutral greys
+- [x] shadcn/ui components installed: Button, Input, Card, Dialog, Table, Badge, Tooltip, Sheet, Label, Select
+- [x] `app/(public)/layout.tsx`: header server component with logo + desktop nav + mobile hamburger
+- [x] `app/(tool)/layout.tsx`: simplified header + PinGuard wrapper (client)
+- [x] `app/not-found.tsx`: custom 404 page
+- [x] `app/error.tsx`: error boundary with user-friendly message
+- [x] Placeholder page for every route
 
 **Done when:** navigation between all routes works. No hydration errors in console.
 
 ---
 
 #### Task 2.2 — Crypto and storage layer
-**Branch:** `feat/web-crypto-storage`
+**Branch:** `feat/web-crypto-storage` ✅
 
-- [ ] `lib/crypto.ts`:
+- [x] `lib/crypto.ts`:
   ```ts
-  deriveKey(pin: string, salt: Uint8Array): Promise<CryptoKey>
-  // PBKDF2: SHA-256, 200,000 iterations, 16-byte salt
-  encrypt(data: string, key: CryptoKey): Promise<EncryptedBlob>
-  // AES-GCM: 12-byte random IV, output: { iv, ciphertext } base64
-  decrypt(blob: EncryptedBlob, key: CryptoKey): Promise<string>
+  deriveKey(pin, salt): Promise<CryptoKey>  // PBKDF2: SHA-256, 200k iterations
+  encrypt(data, key): Promise<EncryptedBlob>  // AES-GCM: 12-byte IV
+  decrypt(blob, key): Promise<string>
   generateSalt(): Uint8Array
   ```
-- [ ] `lib/storage.ts`:
-  - Wrapper over `idb-keyval` with namespace `@sepalo/v1/`
-  - `secureGet<T>(key, cryptoKey): Promise<T | null>`
-  - `secureSet<T>(key, value, cryptoKey): Promise<void>`
-  - `secureDelete(key): Promise<void>`
-  - `clearAll(): Promise<void>`
-- [ ] `stores/auth.ts` (Zustand, no persist):
-  ```ts
-  { cryptoKey: CryptoKey | null; setKey(key): void; clearKey(): void }
-  ```
-- [ ] Unit tests: round-trip encrypt → decrypt, wrong key → `DOMException` error, different salts → different ciphertexts
+- [x] `lib/storage.ts`: idb-keyval wrapper with `@sepalo/v1/` namespace, secureGet/secureSet/secureDelete/clearAll
+- [x] `stores/auth.ts` (Zustand): `cryptoKey`, `failedAttempts`, `lockedUntil`, setKey/clearKey/recordFailure/resetAttempts
+- [x] Unit tests: round-trip encrypt/decrypt, wrong key → error, different salts → different ciphertexts
 
-**Done when:** unit tests green. No sensitive data ends up in localStorage or sessionStorage (verified manually).
+**Done when:** unit tests green. No sensitive data in localStorage/sessionStorage.
 
 ---
 
 #### Task 2.3 — PIN flow
-**Branch:** `feat/web-pin-flow`
+**Branch:** `feat/web-pin-flow` ✅
 
-- [ ] `components/auth/PinPad.tsx`: 10-key numeric pad + delete. 6-dot visual input. Also accepts physical keyboard input
-- [ ] `components/auth/PinSetup.tsx`: enter PIN (6 digits) → confirm → derive key → save salt in IndexedDB (unencrypted)
-- [ ] `components/auth/PinPrompt.tsx`:
-  - Session unlock: enter PIN → `deriveKey` → attempt decrypt of a known payload
-  - Error counter: progressive cooldown 1s → 5s → 30s → 5min → 1h
-  - "Forgot PIN" button → redirect to device reset
-- [ ] `components/auth/PinGuard.tsx`: checks `stores/auth.cryptoKey`. If null → show PinPrompt. If present → show children
-- [ ] `stores/auth.ts` updated: adds `failedAttempts`, `lockedUntil`
+- [x] `components/auth/PinPad.tsx`: 10-key pad + delete, 6-dot visual input, keyboard input
+- [x] `components/auth/PinSetup.tsx`: enter + confirm PIN → derive key → save salt in IndexedDB
+- [x] `components/auth/PinPrompt.tsx`:
+  - Session unlock: derive key → attempt decrypt of known payload
+  - Progressive cooldown: 1s → 5s → 30s → 5min → 1h
+  - "Forgot PIN" reset option
+- [x] `components/auth/PinGuard.tsx`: checks `cryptoKey` → show PinPrompt or children
+- [x] `stores/auth.ts` updated: `failedAttempts`, `lockedUntil`
 
-**Done when:** full flow tested manually (setup → close browser → reopen → PIN prompt → unlock). Cooldown visible and working.
+**Done when:** full flow tested manually. Cooldown visible and working.
 
 ---
 
 #### Task 2.4 — Initiator profile
-**Branch:** `feat/web-profile` → **Tag:** `v0.2.0`
+**Branch:** `feat/web-profile` → **Tag:** `v0.2.0` ✅
 
-- [ ] `stores/profile.ts` (Zustand): `Initiator | null`. Encrypted persistence via `lib/storage.ts`
-- [ ] `components/profile/ProfileForm.tsx`:
+- [x] `hooks/useProfile.ts`: Zustand-backed hook — `Initiator | null`, encrypted persistence
+- [x] `components/profile/ProfileForm.tsx`:
   - React Hook Form + Zod schema from `@sepalo/core`
-  - Initiator IBAN field: auto-derives ABI with `extractAbiFromIban` + shows bank name from `getAbiName`
-  - Identifier: CUC / CF radio with conditional input
+  - IBAN field: auto-derives ABI + shows bank name
+  - CUC / CF identifier with conditional input
   - Real-time validation on blur
-- [ ] `components/profile/ProfileSummary.tsx`: read-only card with initiator data + "Edit" button
-- [ ] `app/(tool)/profilo/page.tsx`: shows ProfileSummary if profile present, otherwise ProfileForm
-- [ ] 4-step onboarding modal (first time, before `/genera`):
-  - Step 1: personal data (name, CF/PIVA or CUC)
-  - Step 2: bank data (IBAN → ABI auto-derived)
-  - Step 3: PinSetup
-  - Step 4: summary + CTA "Start generating"
-- [ ] Onboarding gate: if profile absent, redirect to onboarding modal
+- [x] `components/profile/ProfilePage.tsx`: shows form or summary based on profile state
+- [x] `app/(tool)/profilo/page.tsx`
+- [ ] 4-step onboarding modal (first-time flow before `/genera`)
+- [ ] Onboarding gate: redirect if profile absent
 
-**Done when:** onboarding completable in <2 minutes. Page reload after onboarding → profile still present (after PIN).
+**Done when:** onboarding completable in <2 minutes. Profile persists after PIN.
 
 ---
 
 ### M3 — Web: generation flow (v0.3.0)
 
+> Address book (originally M4 Task 4.1) was completed as part of this work — see M4 below.
+
 #### Task 3.1 — CSV/XLSX parsers
-**Branch:** `feat/web-parsers`
+**Branch:** `feat/web-parsers` ✅ (simplified)
 
-- [ ] `lib/parsers/csv.ts`: PapaParse with auto-detect separator (`,` `;` `\t`). Detects non-UTF-8 encoding and converts with warning
-- [ ] `lib/parsers/xlsx.ts`: SheetJS, supports XLSX and legacy XLS
-- [ ] `lib/parsers/normalize.ts`: maps file columns (case-insensitive, synonyms) → normalised rows with original row number for error reporting
-  - Synonyms: `beneficiario | nome | name | creditor`, `iban | iban_beneficiario`, `importo | amount | eur`, `causale | descrizione | remittance`, `riferimento | endtoend | id`, `bic | swift`
-- [ ] `lib/parsers/index.ts`: `parseSpreadsheet(file: File): Promise<{ rows: NormalizedRow[]; meta: ParseMeta }>`
-- [ ] Unit tests: CSV comma, CSV semicolon, XLSX, legacy XLS, latin-1 encoding, out-of-order headers, empty rows in between, extra columns ignored
+- [x] `lib/parse.ts`: PapaParse (CSV, auto-separator) + SheetJS (XLSX/XLS) in a single unified module
+- [x] Column auto-detection: case-insensitive synonyms (name/beneficiario, iban, amount/importo, description/causale, bic/swift)
+- [x] `parseAmount`: normalises sign via `Math.abs` — debit-as-negative CSV rows accepted (PR #18)
+- [x] `lib/parse.test.ts`: covers IT-locale formats, column synonyms, sign normalisation
+- [ ] Separate csv.ts / xlsx.ts / normalize.ts / index.ts files (merged into single parse.ts)
+- [ ] Non-UTF-8 encoding detection and conversion with warning
+- [ ] Saved column mapping preference in IndexedDB
 
-**Done when:** parser produces identical output for CSV and XLSX with the same data. Empty rows silently ignored.
+**Done when:** parser produces consistent output for CSV and XLSX. Empty rows silently ignored.
 
 ---
 
 #### Task 3.2 — Upload flow
-**Branch:** `feat/web-upload`
+**Branch:** `feat/web-upload` ✅ (core done)
 
-- [ ] `components/upload/FileDropzone.tsx`: drag-and-drop area. Accepts `.csv`, `.xlsx`, `.xls`. Limit 5MB / 5,000 rows. Visual feedback during drag
-- [ ] `components/upload/FilePreview.tsx`: table of first 5 parsed rows + total row counter + any encoding warnings
-- [ ] `components/upload/ColumnMapper.tsx`: UI to manually map unrecognised columns. Dropdown per file column → target field. Saves mapping in IndexedDB (preference for files with same structure)
-- [ ] Upload error handling: file too large → toast with message, unsupported format → inline feedback
+- [x] `components/genera/UploadStep.tsx`: drag-and-drop, .csv/.xlsx/.xls, visual feedback, sample CSV download
+- [x] `components/genera/MapStep.tsx`: column mapping dropdowns, remittanceInfo optional (defaults to "Pagamento {name}")
+- [x] Error handling: parse failures shown inline
+- [ ] `components/upload/FilePreview.tsx`: table of first 5 rows + row counter + encoding warnings
+- [ ] 5MB / 5,000 row limits with toast feedback
+- [ ] Saved mapping preference in IndexedDB for same-structure files
 
-**Done when:** drag-and-drop works on Chromium, Firefox, WebKit. File preview appears in <1s for a 100-row file.
+**Done when:** drag-and-drop works on Chromium, Firefox, WebKit.
 
 ---
 
 #### Task 3.3 — Transaction review
-**Branch:** `feat/web-review`
+**Branch:** `feat/web-review` ✅ (core done)
 
-- [ ] `components/review/TransactionTable.tsx`:
-  - Columns: row # | beneficiary | IBAN | amount | remittance info | status
-  - Error cell: red border + tooltip with message
-  - Inline editing: click on cell → editable input → on blur → re-validation
-  - Pagination or virtual scroll for lists >100 rows
-- [ ] `components/review/ValidationSummary.tsx`: top banner with error/warning counter. Clickable error list → scrolls to row
-- [ ] `components/review/BatchControls.tsx`:
-  - Date picker: execution date (default: next business day). Validation: no weekends, no main Italian holidays, ≥ today, ≤ 60 days
-  - Toggle: batch booking (`BtchBookg=true`) vs individual (`false`) with inline explanation
-  - Totals: transaction count, total amount €
+- [x] `components/genera/ReviewStep.tsx`: transaction list, validation errors shown, execution date, batch booking toggle, totals
+- [x] Execution date picker with default
+- [x] Batch booking toggle
+- [x] Transaction count and total amount displayed
+- [ ] Inline cell editing with re-validation on blur
+- [ ] Pagination or virtual scroll for >100 rows
+- [ ] Execution date validation (no weekends, no holidays, ≤60 days)
+- [ ] Clickable error list scrolling to row
+- [ ] Duplicate payment warning (same IBAN + amount)
 
-**Done when:** table with 100 rows stays responsive. Inline errors appear without noticeable latency.
+**Done when:** table with 100 rows stays responsive.
 
 ---
 
 #### Task 3.4 — Generation and download
-**Branch:** `feat/web-generation` → **Tag:** `v0.3.0`
+**Branch:** `feat/web-generation` → **Tag:** `v0.3.0` ✅ (core done)
 
-- [ ] `components/result/XmlPreview.tsx`: first 50 XML lines in JetBrains Mono, font-size 12px. "Copy all" button (clipboard API)
-- [ ] `components/result/DownloadButton.tsx`: XML Blob → `URL.createObjectURL` → link click. File name: `CBI_{YYYYMMDD}_{n}tx.xml`
-- [ ] `components/result/GenerationSummary.tsx`: transaction count, total amount, SHA-256 hash of file (Web Crypto `digest`)
-- [ ] `app/(tool)/genera/page.tsx`: flow state machine:
-  1. `idle` → FileDropzone
-  2. `parsing` → spinner
-  3. `mapping` → ColumnMapper (only if headers unrecognised)
-  4. `review` → TransactionTable + BatchControls + CTA "Generate XML"
-  5. `generating` → loader (xmllint-wasm lazy-load may take 1-2s on first use)
-  6. `success` → XmlPreview + DownloadButton + GenerationSummary
-  7. `error` → ValidationSummary with clickable XSD errors
-- [ ] Potential duplicate payment warning: same (IBAN + amount) pair → yellow inline warning
-- [ ] Analytics: `trackEvent('file_generated', { tx_count: n.toString() })` (no sensitive payload)
+- [x] XML generation via `buildXml` fully client-side, no server calls
+- [x] `DownloadButton`: XML Blob → `URL.createObjectURL` → file download
+- [x] Browser-side XSD validation via `lib/xsd.ts` (xmllint-wasm via `/vendor/`, webpack/turbopack ignored) — PR #18
+- [x] Business validation errors shown before download
+- [x] `scripts/vendor-xmllint.mjs`: copies runtime files from node_modules to `public/vendor/` on postinstall
+- [ ] `components/result/XmlPreview.tsx`: first 50 XML lines in monospace font + "Copy all"
+- [ ] File name format: `CBI_{YYYYMMDD}_{n}tx.xml`
+- [ ] `components/result/GenerationSummary.tsx`: SHA-256 hash of file
+- [ ] Full state machine (idle → parsing → mapping → review → generating → success → error)
+- [ ] Analytics: `trackEvent('file_generated', { tx_count })`
 
-**Done when:** full end-to-end flow working. Downloaded XML passes validation on the CBI online validator.
+**Done when:** downloaded XML passes CBI online validator.
 
 ---
 
 ### M4 — Web: address book and settings (v0.4.0)
 
 #### Task 4.1 — Address book
-**Branch:** `feat/web-address-book`
+**Branch:** `feat/web-address-book` → **Tag:** `v0.2.4` ✅
 
-- [ ] `stores/address-book.ts` (Zustand + encrypted persist): `Beneficiary[]` with local `id`
-- [ ] `components/address-book/BeneficiaryList.tsx`: list with search by name/IBAN, edit, delete with confirmation
-- [ ] `components/address-book/BeneficiaryForm.tsx`: add/edit (name, IBAN, optional BIC, free notes). Real-time IBAN validation
-- [ ] `app/(tool)/rubrica/page.tsx`: full management
-- [ ] Integration with TransactionTable: "beneficiary" field → combobox with address book autocomplete. Selecting a contact pre-fills IBAN and BIC
+> Completed as part of M2 work.
 
-**Done when:** add 10 beneficiaries, reload, find them all (after PIN). Autocomplete in table works.
+- [x] `hooks/useAddressBook.ts`: encrypted persist, CRUD operations
+- [x] `components/rubrica/BeneficiaryForm.tsx`: add/edit with IBAN validation
+- [x] `components/rubrica/AddressBookPage.tsx`: list, search, edit, delete with confirmation
+- [x] `app/(tool)/rubrica/page.tsx`
+- [ ] Integration with TransactionTable: combobox autocomplete pre-fills IBAN and BIC
+
+**Done when:** add 10 beneficiaries, reload, find them all after PIN.
 
 ---
 
@@ -577,12 +538,12 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 **Branch:** `feat/web-settings` → **Tag:** `v0.4.0`
 
 - [ ] `app/(tool)/impostazioni/page.tsx` with three sections:
-  - **Change PIN**: current PIN → new PIN (6 digits) → confirm. Re-encrypts all IndexedDB data with the new key
-  - **Strong passphrase** (opt-in): upgrades PIN to passphrase (min 12 chars). Toggle with explanation "when to use it". Same cryptographic mechanism, drastically larger key space
-  - **Reset device**: red button. Modal with double confirmation ("Type RESET to confirm"). Clears IndexedDB → redirect to onboarding
-- [ ] Info section: app version (`NEXT_PUBLIC_APP_VERSION`), GitHub link, MIT license
+  - **Change PIN**: re-encrypts all IndexedDB data with new key
+  - **Strong passphrase** (opt-in): min 12 chars, same crypto mechanism
+  - **Reset device**: double-confirmation modal, clears IndexedDB → onboarding
+- [ ] Info section: app version, GitHub link, MIT license
 
-**Done when:** PIN change works (old PIN no longer unlocks after change). Reset clears everything and shows onboarding.
+**Done when:** PIN change works. Reset clears everything and shows onboarding.
 
 ---
 
@@ -592,82 +553,50 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 **Branch:** `feat/web-home`
 
 - [ ] `app/(public)/page.tsx`: server component (SSR)
-- [ ] Hero: H1 "Mass payments, no hassle", tagline, primary CTA + secondary CTA "See how it works"
-- [ ] "How it works" section: 3 illustrated steps (upload CSV → generate XML → upload to bank)
-- [ ] "Why Sepalo" section: 3 cards (privacy by design, MIT open source, zero account)
-- [ ] "Who it's for" section: target users (SMEs, firms, associations)
-- [ ] Social proof placeholder (update post-launch)
-- [ ] Footer with GitHub link, license, version, `/sicurezza` link
-- [ ] `generateMetadata()`: title "Sepalo — Generate CBI/SEPA files free, in your browser", description, og:image, canonical
+- [ ] Hero: H1 + tagline + primary CTA + secondary CTA
+- [ ] "How it works", "Why Sepalo", "Who it's for" sections
+- [ ] Social proof placeholder
+- [ ] `generateMetadata()`: title, description, og:image, canonical
 
-**Done when:** Lighthouse SEO 100. Core Web Vitals green on Vercel Analytics. No accessibility errors on axe.
+**Done when:** Lighthouse SEO 100. Core Web Vitals green on Vercel Analytics.
 
 ---
 
 #### Task 5.2 — Content pages (SSR)
 **Branch:** `feat/web-content-pages`
 
-- [ ] `app/(public)/guida/page.tsx`: user documentation
-  - Input CSV format with column table and synonyms
-  - Template download (links to `/template.csv` and `/template.xlsx`)
-  - FAQ: "Does my bank accept the file?", "Can I do foreign transfers?", "What if I forget my PIN?", "Is my data safe?", "How do I do non-Italian SEPA transfers?"
-  - Flow screenshots (static images in `/public/screenshots/`)
-- [ ] `app/(public)/sicurezza/page.tsx`: readable threat model
-  - What is encrypted (everything persisted in IndexedDB)
-  - What is NOT encrypted (downloaded XML files, static browser cache)
-  - PIN length limitations communicated honestly (brute force ~30 min with physical access)
-  - When to enable the strong passphrase
-  - Architectural guarantees (no HTTP calls to application servers)
-- [ ] `app/(public)/about/page.tsx`: mission, open source (GitHub link), MIT license, how to contribute
+- [ ] `app/(public)/guida/page.tsx`: user documentation, CSV format, template downloads, FAQ
+- [ ] `app/(public)/sicurezza/page.tsx`: threat model, encryption details, passphrase guidance
+- [ ] `app/(public)/about/page.tsx`: mission, open source, MIT license, how to contribute
 
-**Done when:** all pages server-side rendered (verify with `curl` → full HTML without JS). No placeholder text remaining.
+**Done when:** all pages server-side rendered. No placeholder text remaining.
 
 ---
 
 #### Task 5.3 — Technical SEO and sitemap
 **Branch:** `feat/web-seo`
 
-- [ ] `app/sitemap.ts`: Next.js Sitemap API
-  ```ts
-  // Include: /, /guida, /sicurezza, /about
-  // Exclude: /genera, /profilo, /rubrica, /impostazioni (tool pages, no SEO value)
-  // changeFrequency: 'weekly' for home, 'monthly' for others
-  ```
-- [ ] `app/robots.ts`:
-  ```
-  User-agent: *
-  Allow: /
-  Disallow: /genera
-  Disallow: /profilo
-  Disallow: /rubrica
-  Disallow: /impostazioni
-  Sitemap: https://sepalo.it/sitemap.xml
-  ```
-- [ ] `public/og-image.png`: 1200×630, consistent with brand design
+- [ ] `app/sitemap.ts`: public routes only, correct changeFrequency
+- [ ] `app/robots.ts`: Disallow tool routes
+- [ ] `public/og-image.png`: 1200×630
 - [ ] `public/favicon.svg` + `favicon.ico` + PNG icons 192/512
-- [ ] JSON-LD on home: `WebApplication` schema with `name`, `url`, `applicationCategory`, `operatingSystem: "Web Browser"`, `offers: { price: "0" }`
+- [ ] JSON-LD on home: `WebApplication` schema
 - [ ] Canonical URL on every public page
-- [ ] Verification with Google Search Console (submit sitemap)
+- [ ] Google Search Console sitemap submission
 
-**Done when:** `https://sepalo.it/sitemap.xml` accessible and valid. Structured data validated with Google Rich Results Test.
+**Done when:** `https://sepalo.it/sitemap.xml` valid. Structured data passes Google Rich Results Test.
 
 ---
 
 #### Task 5.4 — Rybbit analytics
 **Branch:** `feat/web-analytics` → **Tag:** `v0.5.0`
 
-- [ ] Rybbit project setup (cloud or self-hosted)
-- [ ] `lib/analytics.ts` (client-side only):
-  ```ts
-  trackEvent(name: EventName, props?: Record<string, string>): void
-  // EventName: 'file_generated' | 'validation_error' | 'csv_upload' | 'xlsx_upload' | 'pin_reset' | 'address_book_add'
-  // Props: anonymous metadata only (e.g. tx_count, error_code). NEVER IBANs, amounts, names.
-  ```
-- [ ] Rybbit snippet integrated in `app/layout.tsx` (client-side only, `next/script` with `strategy="afterInteractive"`)
-- [ ] CSP updated in `vercel.json` with Rybbit domain in `script-src` and `connect-src`
-- [ ] No cookie banner needed (Rybbit is cookie-free by default)
+- [ ] Rybbit project setup
+- [ ] `lib/analytics.ts`: `trackEvent` (anonymous metadata only)
+- [ ] Rybbit snippet in `app/layout.tsx` via `next/script strategy="afterInteractive"`
+- [ ] CSP updated with Rybbit domain
 
-**Done when:** `file_generated` event visible in Rybbit dashboard after an end-to-end test. No sensitive data in event payloads (verified manually in network inspector).
+**Done when:** `file_generated` event visible in Rybbit dashboard. No sensitive data in payloads.
 
 ---
 
@@ -676,27 +605,22 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 #### Task 6.1 — PWA
 **Branch:** `feat/web-pwa`
 
-- [ ] `public/manifest.webmanifest`: `name`, `short_name: "Sepalo"`, `icons` (192 + 512), `theme_color: "#1B2A56"`, `display: "standalone"`, `start_url: "/genera"`
-- [ ] Service worker (next-pwa or custom `public/sw.js`):
-  - Cache-first: static assets (JS, CSS, fonts, images)
-  - Network-first: HTML pages
-  - Offline fallback: `/offline` page with message "You are offline. XML generation is available, but some resources may not be up to date."
-- [ ] `app/(public)/offline/page.tsx`: offline page
-- [ ] Test: disable network in DevTools → app remains usable for XML generation
+- [ ] `public/manifest.webmanifest`
+- [ ] Service worker: cache-first static, network-first HTML, offline fallback
+- [ ] `app/(public)/offline/page.tsx`
 
-**Done when:** Lighthouse PWA check green. App installable from Chrome/Edge. Works offline after first load.
+**Done when:** Lighthouse PWA green. App installable. Works offline.
 
 ---
 
 #### Task 6.2 — Downloadable templates
 **Branch:** `feat/web-templates` → **Tag:** `v0.6.0`
 
-- [ ] `public/template.csv`: header + 3 realistic example rows (fictitious names, valid generated IBANs)
-- [ ] `public/template.xlsx`: same content in Excel format with formatted columns
-- [ ] Download links visible in `/genera` (before dropzone) and in `/guida`
-- [ ] The CSV template is the same one used in parser test fixtures
+- [ ] `public/template.csv`: header + 3 realistic example rows
+- [ ] `public/template.xlsx`: same content in Excel
+- [ ] Download links in `/genera` and `/guida`
 
-**Done when:** download works. The downloaded CSV file is parsable without errors by the app itself.
+**Done when:** downloaded CSV parsable by the app without errors.
 
 ---
 
@@ -705,45 +629,31 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 #### Task 7.1 — e2e happy path
 **Branch:** `test/e2e-happy-path`
 
-- [ ] `playwright.config.ts`: Chromium + Firefox + WebKit. `baseURL` from `PLAYWRIGHT_BASE_URL` env. Screenshot and trace on failure
-- [ ] `e2e/fixtures/`: `sample.csv` (10 valid rows), `sample.xlsx` (same content)
-- [ ] `e2e/happy-path.spec.ts`:
-  1. Land on home → CTA → onboarding (4 steps including PIN)
-  2. Upload `sample.csv`
-  3. Review: verify row count, total, no errors
-  4. Select execution date (tomorrow)
-  5. Click "Generate XML" → download
-  6. Verify downloaded file: correct name, size > 0
-  7. Verify summary: transaction count = 10
+- [ ] `playwright.config.ts`: Chromium + Firefox + WebKit
+- [ ] `e2e/fixtures/`: `sample.csv`, `sample.xlsx`
+- [ ] `e2e/happy-path.spec.ts`: full flow (onboarding → upload → review → generate → download)
 
-**Done when:** test green on all 3 browsers in CI.
+**Done when:** green on all 3 browsers in CI.
 
 ---
 
 #### Task 7.2 — e2e PIN flow and persistence
 **Branch:** `test/e2e-pin-persistence`
 
-- [ ] `e2e/pin-flow.spec.ts`:
-  - Set up PIN → close tab → reopen → PIN prompt visible → wrong PIN 3 times → cooldown visible → correct PIN → access
-- [ ] `e2e/persistence.spec.ts`:
-  - Complete onboarding → reload page → PIN prompt → unlock → profile still present
-- [ ] `e2e/reset-device.spec.ts`:
-  - Settings → Reset device → confirm → fresh onboarding
+- [ ] `e2e/pin-flow.spec.ts`: cooldown, wrong PIN, correct PIN
+- [ ] `e2e/persistence.spec.ts`: reload → PIN → profile present
+- [ ] `e2e/reset-device.spec.ts`: settings → reset → fresh onboarding
 
-**Done when:** green on Chromium. (Some IndexedDB features may behave differently on WebKit: document if needed.)
+**Done when:** green on Chromium.
 
 ---
 
 #### Task 7.3 — e2e validation errors and edge cases
 **Branch:** `test/e2e-validation`
 
-- [ ] `e2e/fixtures/invalid.csv`: CSV with 2 invalid IBANs, 1 remittance >140 chars, 1 negative amount
-- [ ] `e2e/validation-errors.spec.ts`:
-  - Upload `invalid.csv` → errors highlighted on correct rows → click error → focus on row → fix inline → error disappears → generate OK
-- [ ] `e2e/edge-cases.spec.ts`:
-  - File >5MB → warning
-  - CSV with `;` separator → parsed correctly
-  - Remittance info with accents (è, à, ù) → sanitised + warning
+- [ ] `e2e/fixtures/invalid.csv`: invalid IBANs, remittance >140 chars, negative amount
+- [ ] `e2e/validation-errors.spec.ts`: inline fix → error clears → generate OK
+- [ ] `e2e/edge-cases.spec.ts`: >5MB, `;` separator, accented remittance
 
 **Done when:** green on Chromium + Firefox.
 
@@ -752,13 +662,11 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 #### Task 7.4 — Full CI e2e workflow
 **Branch:** `chore/ci-e2e-workflow` → **Tag:** `v0.7.0`
 
-- [ ] `.github/workflows/e2e.yml` complete:
-  - Setup + install → Playwright browsers cache → build web → run e2e
-  - Upload trace + screenshot on failure (`actions/upload-artifact`)
-- [ ] Separate CI (unit + integration) from e2e to parallelise on GitHub Actions
-- [ ] Matrix: Chromium + Firefox + WebKit as separate jobs or with Playwright shard
+- [ ] `.github/workflows/e2e.yml` complete with artifact upload on failure
+- [ ] Separate CI from e2e jobs
+- [ ] Browser matrix: Chromium + Firefox + WebKit
 
-**Done when:** CI e2e green in <5 minutes on GitHub Actions.
+**Done when:** CI e2e green in <5 minutes.
 
 ---
 
@@ -768,22 +676,21 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 **Branch:** `chore/security-hardening`
 
 - [ ] `pnpm audit` — zero high/critical vulnerabilities
-- [ ] Final CSP revisited: complete header tested with [CSP Evaluator](https://csp-evaluator.withgoogle.com/)
-- [ ] SRI on any remaining external assets
-- [ ] Dependabot enabled (`.github/dependabot.yml`): npm + GitHub Actions
-- [ ] Security.md with disclosure policy (responsible vulnerability report)
+- [ ] Final CSP tested with CSP Evaluator
+- [ ] Dependabot enabled
+- [ ] Security.md with disclosure policy
 
 ---
 
 #### Task 8.2 — Publish @sepalo/core to npm
 **Branch:** `chore/npm-publish-setup`
 
-- [ ] `packages/core/package.json`: `version: 0.1.0`, `exports`, `types`, `repository`, `keywords`, `engines`
-- [ ] `packages/core/.npmignore`: exclude `src/`, `tests/`, `tsconfig.json`. Include only `dist/` and `data/`
-- [ ] Changeset created and approved for `0.1.0`
-- [ ] GitHub Actions `release.yml` tested on a test branch
-- [ ] Publish to npm: `pnpm changeset publish`
-- [ ] `@sepalo/core` README with usage examples, API reference, changelog
+- [ ] `packages/core/package.json`: exports, types, repository, keywords, engines
+- [ ] `packages/core/.npmignore`
+- [ ] Changeset for `0.1.0` created and approved
+- [ ] `release.yml` tested
+- [ ] `pnpm changeset publish`
+- [ ] `@sepalo/core` README with usage examples and API reference
 
 ---
 
@@ -791,31 +698,31 @@ The spec does not specify whether the root element is `CBIBdyPaymentRequest` or 
 **Branch:** `chore/oss-launch` → **Tag:** `v1.0.0-beta.1`
 
 - [ ] Repository public on GitHub
-- [ ] `.github/ISSUE_TEMPLATE/bug.yml`, `feature.yml`, `cbi-validation.yml`
-- [ ] `.github/pull_request_template.md`: checklist (tests? docs? changeset? golden files updated?)
-- [ ] `docs/adr/001-nextjs-over-vite.md`: ADR on choosing Next.js for SSR
-- [ ] `docs/adr/002-client-only-tool.md`: ADR on client-only architectural choice for the tool
+- [ ] `.github/ISSUE_TEMPLATE/` (bug, feature, cbi-validation)
+- [ ] `.github/pull_request_template.md`
+- [ ] `docs/adr/001-nextjs-over-vite.md`
+- [ ] `docs/adr/002-client-only-tool.md`
 - [ ] GitHub Discussions enabled
-- [ ] GitHub Projects: public roadmap with M8 → `1.0.0` as next milestone
-- [ ] Beta communication: README updated with `beta` badge, note "currently in public beta"
+- [ ] GitHub Projects: public roadmap
+- [ ] README with `beta` badge
 
-**Done when:** `sepalo.it` loads the full beta version. `@sepalo/core@0.1.0` available on npm. Repository public.
+**Done when:** `sepalo.it` full beta. `@sepalo/core@0.1.0` on npm. Repository public.
 
 ---
 
 ## Milestone → Version Summary
 
-| Milestone | Version | What it includes |
-|---|---|---|
-| M0 Setup | `v0.0.1` → `v0.0.4` | Monorepo, CI, Next.js, Vercel |
-| M1 Core | `v0.1.0` | Complete `@sepalo/core` with XSD validation |
-| M2 Auth | `v0.2.0` | PIN, crypto, initiator profile |
-| M3 Generate | `v0.3.0` | Parsers, upload, review, generation |
-| M4 Extras | `v0.4.0` | Address book, settings |
-| M5 SEO | `v0.5.0` | SSR landing, content, sitemap, Rybbit |
-| M6 PWA | `v0.6.0` | Offline, templates |
-| M7 Tests | `v0.7.0` | Full e2e suite |
-| M8 Launch | `v1.0.0-beta.1` | Hardening, npm publish, open source |
+| Milestone | Version | What it includes | Status |
+|---|---|---|---|
+| M0 Setup | `v0.0.1` → `v0.0.3` | Monorepo, CI, Next.js shell | ✅ (Vercel deploy pending) |
+| M1 Core | `v0.1.0` | Complete `@sepalo/core` with official XSD validation | ✅ |
+| M2 Auth | `v0.2.0` → `v0.2.4` | PIN, crypto, initiator profile, **address book** | ✅ |
+| M3 Generate | `v0.3.0` + PR #18 | Parsers, upload, map, review, generation, browser XSD validation | ✅ core done, advanced features pending |
+| M4 Extras | `v0.4.0` | Address book ✅ (shipped in M2), settings pending | 🔄 partial |
+| M5 SEO | `v0.5.0` | SSR landing, content pages, sitemap, Rybbit | ⏳ |
+| M6 PWA | `v0.6.0` | Offline support, downloadable templates | ⏳ |
+| M7 Tests | `v0.7.0` | Full e2e suite | ⏳ |
+| M8 Launch | `v1.0.0-beta.1` | Hardening, npm publish, open source | ⏳ |
 
 ---
 
