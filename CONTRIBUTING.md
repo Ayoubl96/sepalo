@@ -49,6 +49,32 @@ pnpm changeset version # bump versions (done by maintainer)
 
 Do not manually edit the version in `packages/core/package.json`.
 
+## Language conventions
+
+| What | Language | Examples |
+|---|---|---|
+| Code — functions, variables, types, files, folders | **English** | `buildXml`, `useProfile`, `validatePayment`, `auth/PinGuard.tsx` |
+| Comments and inline documentation | **English** | `// derive key from PIN and stored salt` |
+| Documentation files (README, CONTRIBUTING, docs/) | **English** | This file |
+| User-facing UI text (labels, headings, messages, placeholders) | **Italian** | `"Inserisci il PIN"`, `"Reimposta dispositivo"` |
+| Public page content (landing, guides, about) | **Italian** | `"Genera file di pagamento CBI direttamente nel browser"` |
+
+**Rule of thumb:** if a user reads it, it is Italian. If only a developer reads it, it is English.
+
+```tsx
+// ✅ correct
+export function PinGuard({ children }: { children: React.ReactNode }) {
+  // check stored salt to decide whether to show setup or prompt
+  return <p>Inserisci il tuo PIN per sbloccare i dati.</p>
+}
+
+// ❌ wrong — function name in Italian
+export function GuardianePIN({ children }) { ... }
+
+// ❌ wrong — UI text in English
+return <p>Enter your PIN to unlock your data.</p>
+```
+
 ## Principles
 
 - **Privacy first**: no payment data ever touches the server. Tool pages are 100% client-side.

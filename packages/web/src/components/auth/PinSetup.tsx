@@ -1,6 +1,7 @@
 'use client';
 
 import { toBase64 } from '@/lib/base64';
+import { AUTH_CHECK_KEY, AUTH_SALT_KEY, AUTH_TOKEN } from '@/lib/auth-keys';
 import { deriveKey, encrypt, generateSalt } from '@/lib/crypto';
 import { useAuthStore } from '@/stores/auth';
 import { set } from 'idb-keyval';
@@ -8,10 +9,6 @@ import { useState } from 'react';
 import { PinPad } from './PinPad';
 
 type Phase = 'enter' | 'confirm';
-
-const AUTH_CHECK_KEY = '@sepalo/v1/auth-check';
-const AUTH_SALT_KEY = '@sepalo/v1/auth-salt';
-const AUTH_TOKEN = 'sepalo-auth-v1';
 
 export function PinSetup() {
   const [phase, setPhase] = useState<Phase>('enter');
