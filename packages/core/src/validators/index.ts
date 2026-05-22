@@ -1,5 +1,6 @@
 import type {
   PaymentBatch,
+  Transaction,
   ValidationError,
   ValidationResult,
   ValidationWarning,
@@ -11,11 +12,76 @@ import { validateIban } from './iban.js';
 import { sanitize } from './sepa-charset.js';
 import { validateTotals } from './totals.js';
 
+function validateTransaction(
+  tx: Transaction,
+  index: number,
+): { errors: ValidationError[]; warnings: ValidationWarning[] } {
+  const errors: ValidationError[] = [];
+  const warnings: ValidationWarning[] = [];
+  const row = index + 1;
+
+  const creditorIban = validateIban(tx.beneficiary.iban);
+  if (!creditorIban.valid) {
+    errors.push({
+      path: `transactions[${index}].beneficiary.iban`,
+      code: 'INVALID_IBAN',
+      message: creditorIban.error ?? 'Invalid beneficiary IBAN',
+      rowNumber: row,
+    });
+  } else if (!creditorIban.isSepa && !tx.beneficiary.bic) {
+    errors.push({
+      path: `transactions[${index}].beneficiary.bic`,
+      code: 'BIC_REQUIRED_EXTRA_SEPA',
+      message: 'BIC is mandatory for extra-SEPA IBANs',
+      rowNumber: row,
+    });
+  }
+
+  if (tx.remittanceInfo.length < 1 || tx.remittanceInfo.length > 140) {
+    errors.push({
+      path: `transactions[${index}].remittanceInfo`,
+      code: 'REMITTANCE_LENGTH',
+      message: 'Remittance info must be 1–140 characters',
+      rowNumber: row,
+    });
+  }
+
+  const remittance = sanitize(tx.remittanceInfo);
+  if (remittance.replacements.length > 0) {
+    warnings.push({
+      path: `transactions[${index}].remittanceInfo`,
+      code: 'SEPA_CHARSET_SANITIZED',
+      message: `${remittance.replacements.length} character(s) will be substituted to comply with SEPA charset`,
+      rowNumber: row,
+    });
+  }
+
+  if (tx.beneficiary.name.length < 1 || tx.beneficiary.name.length > 70) {
+    errors.push({
+      path: `transactions[${index}].beneficiary.name`,
+      code: 'BENEFICIARY_NAME_LENGTH',
+      message: 'Beneficiary name must be 1–70 characters',
+      rowNumber: row,
+    });
+  }
+
+  const beneficiaryName = sanitize(tx.beneficiary.name);
+  if (beneficiaryName.replacements.length > 0) {
+    warnings.push({
+      path: `transactions[${index}].beneficiary.name`,
+      code: 'SEPA_CHARSET_SANITIZED',
+      message: `${beneficiaryName.replacements.length} character(s) in beneficiary name will be substituted`,
+      rowNumber: row,
+    });
+  }
+
+  return { errors, warnings };
+}
+
 export function validatePayment(batch: PaymentBatch): ValidationResult {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
 
-  // Initiator IBAN
   const initiatorIban = validateIban(batch.initiator.iban);
   if (!initiatorIban.valid) {
     errors.push({
@@ -31,7 +97,6 @@ export function validatePayment(batch: PaymentBatch): ValidationResult {
     });
   }
 
-  // Initiator ABI
   if (!validateAbi(batch.initiator.abi)) {
     errors.push({
       path: 'initiator.abi',
@@ -40,7 +105,6 @@ export function validatePayment(batch: PaymentBatch): ValidationResult {
     });
   }
 
-  // Initiator identifier
   const { identifier } = batch.initiator;
   if (identifier.type === 'CUC' && !validateCuc(identifier.value)) {
     errors.push({
@@ -57,73 +121,12 @@ export function validatePayment(batch: PaymentBatch): ValidationResult {
     });
   }
 
-  // Transactions
-  for (let i = 0; i < batch.transactions.length; i++) {
-    const tx = batch.transactions[i]!;
-    const row = i + 1;
-
-    // Beneficiary IBAN
-    const creditorIban = validateIban(tx.beneficiary.iban);
-    if (!creditorIban.valid) {
-      errors.push({
-        path: `transactions[${i}].beneficiary.iban`,
-        code: 'INVALID_IBAN',
-        message: creditorIban.error ?? 'Invalid beneficiary IBAN',
-        rowNumber: row,
-      });
-    } else if (!creditorIban.isSepa && !tx.beneficiary.bic) {
-      errors.push({
-        path: `transactions[${i}].beneficiary.bic`,
-        code: 'BIC_REQUIRED_EXTRA_SEPA',
-        message: 'BIC is mandatory for extra-SEPA IBANs',
-        rowNumber: row,
-      });
-    }
-
-    // Remittance info length (XSD Max140Text: minLength=1, maxLength=140)
-    if (tx.remittanceInfo.length < 1 || tx.remittanceInfo.length > 140) {
-      errors.push({
-        path: `transactions[${i}].remittanceInfo`,
-        code: 'REMITTANCE_LENGTH',
-        message: 'Remittance info must be 1–140 characters',
-        rowNumber: row,
-      });
-    }
-
-    // Remittance info SEPA charset
-    const remittance = sanitize(tx.remittanceInfo);
-    if (remittance.replacements.length > 0) {
-      warnings.push({
-        path: `transactions[${i}].remittanceInfo`,
-        code: 'SEPA_CHARSET_SANITIZED',
-        message: `${remittance.replacements.length} character(s) will be substituted to comply with SEPA charset`,
-        rowNumber: row,
-      });
-    }
-
-    // Beneficiary name length (XSD Max70Text: minLength=1, maxLength=70)
-    if (tx.beneficiary.name.length < 1 || tx.beneficiary.name.length > 70) {
-      errors.push({
-        path: `transactions[${i}].beneficiary.name`,
-        code: 'BENEFICIARY_NAME_LENGTH',
-        message: 'Beneficiary name must be 1–70 characters',
-        rowNumber: row,
-      });
-    }
-
-    // Beneficiary name SEPA charset
-    const beneficiaryName = sanitize(tx.beneficiary.name);
-    if (beneficiaryName.replacements.length > 0) {
-      warnings.push({
-        path: `transactions[${i}].beneficiary.name`,
-        code: 'SEPA_CHARSET_SANITIZED',
-        message: `${beneficiaryName.replacements.length} character(s) in beneficiary name will be substituted`,
-        rowNumber: row,
-      });
-    }
+  for (const [i, tx] of batch.transactions.entries()) {
+    const result = validateTransaction(tx, i);
+    errors.push(...result.errors);
+    warnings.push(...result.warnings);
   }
 
-  // Totals
   errors.push(...validateTotals(batch));
 
   return {

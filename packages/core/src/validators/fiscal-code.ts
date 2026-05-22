@@ -82,7 +82,7 @@ export function validateCodiceFiscale(cf: string): boolean {
 
   let sum = 0;
   for (let i = 0; i < 15; i++) {
-    const ch = normalized[i]!;
+    const ch = normalized.charAt(i);
     // positions are 1-indexed: odd positions (1,3,5,...) use odd table
     sum += (i + 1) % 2 === 1 ? (CF_ODD[ch] ?? 0) : (CF_EVEN[ch] ?? 0);
   }

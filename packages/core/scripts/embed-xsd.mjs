@@ -63,4 +63,3 @@ export const CBI_PAYMENT_XSD = CBI_BODY_XSD;
 `;
 
 await writeFile(OUT_FILE, out, 'utf8');
-console.log(`Wrote ${OUT_FILE}`);

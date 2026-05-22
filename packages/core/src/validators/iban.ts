@@ -234,7 +234,7 @@ function validateItalianCin(iban: string): boolean {
 
   let sum = 0;
   for (let i = 0; i < rest.length; i++) {
-    const ch = rest[i]!.toUpperCase();
+    const ch = rest.charAt(i).toUpperCase();
     // positions are 1-indexed: odd positions use oddTable, even use evenTable
     sum += (i + 1) % 2 === 1 ? (oddTable[ch] ?? 0) : (evenTable[ch] ?? 0);
   }
