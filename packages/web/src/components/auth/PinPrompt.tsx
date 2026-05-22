@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { fromBase64 } from '@/lib/base64';
 import { AUTH_CHECK_KEY, AUTH_SALT_KEY, AUTH_TOKEN, type AuthMode } from '@/lib/auth-keys';
+import { fromBase64 } from '@/lib/base64';
 import { decrypt, deriveKey } from '@/lib/crypto';
 import type { EncryptedBlob } from '@/lib/crypto';
 import { useAuthStore } from '@/stores/auth';
@@ -11,6 +11,11 @@ import { del, get } from 'idb-keyval';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PinPad } from './PinPad';
+
+function formatCountdown(s: number): string {
+  if (s >= 60) return `${Math.ceil(s / 60)} min`;
+  return `${s}s`;
+}
 
 interface PinPromptProps {
   saltB64: string;
@@ -33,12 +38,12 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
       return;
     }
     const deadline = lockedUntil;
-    function tick() {
+    const update = () => {
       const remaining = Math.ceil((deadline - Date.now()) / 1_000);
       setCountdown(remaining > 0 ? remaining : 0);
-    }
-    tick();
-    const id = setInterval(tick, 500);
+    };
+    update();
+    const id = setInterval(update, 500);
     return () => clearInterval(id);
   }, [lockedUntil]);
 
@@ -62,7 +67,7 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
       }
     } catch {
       recordFailure();
-      setError(authMode === 'passphrase' ? 'Wrong passphrase.' : 'Wrong PIN.');
+      setError(authMode === 'passphrase' ? 'Passphrase errata.' : 'PIN errato.');
       setDigits([]);
       setPassphrase('');
     }
@@ -75,26 +80,19 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
     onForgot();
   }
 
-  function formatCountdown(s: number): string {
-    if (s >= 60) return `${Math.ceil(s / 60)} min`;
-    return `${s}s`;
-  }
-
-  const lockMessage = isLocked ? `Too many attempts — wait ${formatCountdown(countdown)}` : null;
-  const errorMessage =
-    !isLocked && error
-      ? `${error}${failedAttempts >= 2 ? ` (attempt ${failedAttempts})` : ''}`
-      : null;
+  const lockMessage = isLocked ? `Troppi tentativi — attendi ${formatCountdown(countdown)}` : null;
+  const attemptSuffix = failedAttempts >= 2 ? ` (tentativo ${failedAttempts})` : '';
+  const errorMessage = !isLocked && error ? `${error}${attemptSuffix}` : null;
 
   return (
     <div className="flex flex-col items-center gap-4 text-center">
       <h1 className="text-2xl font-semibold text-ink">
-        {authMode === 'passphrase' ? 'Enter your passphrase' : 'Enter your PIN'}
+        {authMode === 'passphrase' ? 'Inserisci la passphrase' : 'Inserisci il PIN'}
       </h1>
       <p className="text-sm text-muted max-w-xs">
         {authMode === 'passphrase'
-          ? 'Enter your passphrase to unlock your data.'
-          : 'Enter your 6-digit PIN to unlock your data.'}
+          ? 'Inserisci la passphrase per sbloccare i dati.'
+          : 'Inserisci il PIN a 6 cifre per sbloccare i dati.'}
       </p>
 
       {lockMessage && <p className="text-sm text-warn font-medium">{lockMessage}</p>}
@@ -105,7 +103,7 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
           <div className="relative">
             <Input
               type={showPassphrase ? 'text' : 'password'}
-              placeholder="Your passphrase"
+              placeholder="La tua passphrase"
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
               onKeyDown={(e) => {
@@ -125,7 +123,7 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
             </button>
           </div>
           <Button onClick={() => attemptUnlock(passphrase)} disabled={isLocked || !passphrase}>
-            Unlock
+            Sblocca
           </Button>
         </div>
       ) : (
@@ -138,13 +136,10 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
         />
       )}
 
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-muted text-xs mt-2"
-        onClick={handleForgot}
-      >
-        {authMode === 'passphrase' ? 'Forgot passphrase? Reset data' : 'Forgot PIN? Reset data'}
+      <Button variant="ghost" size="sm" className="text-muted text-xs mt-2" onClick={handleForgot}>
+        {authMode === 'passphrase'
+          ? 'Passphrase dimenticata? Reimposta i dati'
+          : 'PIN dimenticato? Reimposta i dati'}
       </Button>
     </div>
   );

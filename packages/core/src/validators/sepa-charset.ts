@@ -73,11 +73,11 @@ export function sanitize(text: string): SanitizeResult {
   let sanitized = '';
 
   for (let i = 0; i < text.length; i++) {
-    const ch = text[i]!;
+    const ch = text.charAt(i);
     if (SEPA_REGEX.test(ch)) {
       sanitized += ch;
     } else if (ch in ACCENT_MAP) {
-      const replacement = ACCENT_MAP[ch]!;
+      const replacement = ACCENT_MAP[ch] ?? '';
       replacements.push({ position: i, original: ch, replacement });
       sanitized += replacement;
     } else {

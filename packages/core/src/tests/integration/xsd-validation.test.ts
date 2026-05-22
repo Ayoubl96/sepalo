@@ -113,14 +113,12 @@ describe('generatePaymentFile — orchestrator', () => {
   });
 
   it('propagates SEPA charset warnings', async () => {
+    const base = fixture06 as PaymentBatch;
+    const [firstTx] = base.transactions;
+    if (!firstTx) throw new Error('fixture has no transactions');
     const batch: PaymentBatch = {
-      ...(fixture06 as PaymentBatch),
-      transactions: [
-        {
-          ...(fixture06 as PaymentBatch).transactions[0]!,
-          remittanceInfo: 'Pagamento per caffè',
-        },
-      ],
+      ...base,
+      transactions: [{ ...firstTx, remittanceInfo: 'Pagamento per caffè' }],
     };
     const result = await generatePaymentFile(batch);
     const warnCodes = result.warnings.map((w) => w.code);

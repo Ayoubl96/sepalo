@@ -10,8 +10,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { toBase64 } from '@/lib/base64';
-import { fromBase64 } from '@/lib/base64';
 import {
   AUTH_CHECK_KEY,
   AUTH_MODE_KEY,
@@ -19,16 +17,21 @@ import {
   AUTH_TOKEN,
   type AuthMode,
 } from '@/lib/auth-keys';
+import { toBase64 } from '@/lib/base64';
+import { fromBase64 } from '@/lib/base64';
 import { decrypt, deriveKey, encrypt, generateSalt } from '@/lib/crypto';
 import type { EncryptedBlob } from '@/lib/crypto';
 import { clearAll, secureGet, secureSet } from '@/lib/storage';
 import { useAuthStore } from '@/stores/auth';
-import { ExternalLink, KeyRound, ShieldCheck, Trash2 } from 'lucide-react';
 import { get, set } from 'idb-keyval';
+import { ExternalLink, KeyRound, ShieldCheck, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PinPad } from '../auth/PinPad';
 
 const ENCRYPTED_KEYS = ['initiator-profile', 'address-book'] as const;
+
+const isPin = (mode: AuthMode) => mode === 'pin';
+const credLabel = (mode: AuthMode) => (isPin(mode) ? 'PIN' : 'passphrase');
 
 async function reEncryptAll(oldKey: CryptoKey, newKey: CryptoKey) {
   for (const k of ENCRYPTED_KEYS) {
@@ -45,6 +48,7 @@ async function reEncryptAll(oldKey: CryptoKey, newKey: CryptoKey) {
 
 type ChangePhase = 'verify' | 'enter-new' | 'confirm-new' | 'saving' | 'done';
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: 5-phase credential-change flow
 function ChangeCredentialDialog({
   open,
   targetMode,
@@ -120,11 +124,7 @@ function ChangeCredentialDialog({
     }
   }
 
-  const isPin = (mode: AuthMode) => mode === 'pin';
   const minLen = targetMode === 'passphrase' ? 12 : 6;
-
-  // Italian labels respect grammatical gender: PIN (masc.) / passphrase (fem.)
-  const credLabel = (mode: AuthMode) => (isPin(mode) ? 'PIN' : 'passphrase');
   const updatedLabel = targetMode === 'pin' ? 'PIN aggiornato' : 'Passphrase aggiornata';
   const mismatchError =
     targetMode === 'pin'
@@ -356,9 +356,8 @@ function ResetDeviceDialog({
         </DialogHeader>
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted">
-            Scrivi{' '}
-            <span className="font-mono font-semibold text-ink">{RESET_CONFIRM_WORD}</span> per
-            confermare.
+            Scrivi <span className="font-mono font-semibold text-ink">{RESET_CONFIRM_WORD}</span>{' '}
+            per confermare.
           </p>
           <Input
             value={input}
@@ -408,6 +407,7 @@ export function SettingsPage() {
     if (newMode) setAuthMode(newMode);
   }
 
+  // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
   const appVersion = process.env['NEXT_PUBLIC_APP_VERSION'] ?? '0.x.x';
 
   return (
