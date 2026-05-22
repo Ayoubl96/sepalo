@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "vercel-build": "pnpm --filter @sepalo/core build && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
