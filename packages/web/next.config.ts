@@ -1,8 +1,7 @@
-import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  outputFileTracingRoot: path.join(__dirname, '../..'),
+  output: 'export',
   transpilePackages: ['@sepalo/core'],
   webpack: (config) => {
     // pnpm uses symlinks for workspace packages; disabling symlink resolution
