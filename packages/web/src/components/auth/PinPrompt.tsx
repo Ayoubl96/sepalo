@@ -6,6 +6,7 @@ import { AUTH_CHECK_KEY, AUTH_SALT_KEY, AUTH_TOKEN, type AuthMode } from '@/lib/
 import { fromBase64 } from '@/lib/base64';
 import { decrypt, deriveKey } from '@/lib/crypto';
 import type { EncryptedBlob } from '@/lib/crypto';
+import { clearSession, saveSession } from '@/lib/session';
 import { useAuthStore } from '@/stores/auth';
 import { del, get } from 'idb-keyval';
 import { Eye, EyeOff } from 'lucide-react';
@@ -61,6 +62,7 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
       const token = await decrypt(blob, cryptoKey);
       if (token === AUTH_TOKEN) {
         resetAttempts();
+        await saveSession(cryptoKey);
         setKey(cryptoKey);
       } else {
         throw new Error('bad token');
@@ -76,6 +78,7 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
   async function handleForgot() {
     await del(AUTH_CHECK_KEY);
     await del(AUTH_SALT_KEY);
+    await clearSession();
     resetAttempts();
     onForgot();
   }

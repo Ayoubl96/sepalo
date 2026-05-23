@@ -28,7 +28,7 @@ import { ExternalLink, KeyRound, ShieldCheck, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PinPad } from '../auth/PinPad';
 
-const ENCRYPTED_KEYS = ['initiator-profile', 'address-book'] as const;
+const ENCRYPTED_KEYS = ['initiator-profile'] as const;
 
 const isPin = (mode: AuthMode) => mode === 'pin';
 const credLabel = (mode: AuthMode) => (isPin(mode) ? 'PIN' : 'passphrase');
@@ -350,8 +350,8 @@ function ResetDeviceDialog({
         <DialogHeader>
           <DialogTitle className="text-error">Reimposta dispositivo</DialogTitle>
           <DialogDescription>
-            Questa operazione elimina definitivamente PIN, profilo e rubrica da questo dispositivo.
-            Non è reversibile.
+            Questa operazione elimina definitivamente PIN e profilo da questo dispositivo. Non è
+            reversibile.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">
@@ -486,7 +486,7 @@ export function SettingsPage() {
           <div>
             <p className="text-sm font-medium text-ink">Reimposta dispositivo</p>
             <p className="text-xs text-muted mt-0.5">
-              Elimina definitivamente PIN, profilo e rubrica da questo dispositivo.
+              Elimina definitivamente PIN e profilo da questo dispositivo.
             </p>
           </div>
           <Button

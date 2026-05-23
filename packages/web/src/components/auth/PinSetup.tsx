@@ -3,6 +3,7 @@
 import { AUTH_CHECK_KEY, AUTH_SALT_KEY, AUTH_TOKEN } from '@/lib/auth-keys';
 import { toBase64 } from '@/lib/base64';
 import { deriveKey, encrypt, generateSalt } from '@/lib/crypto';
+import { saveSession } from '@/lib/session';
 import { useAuthStore } from '@/stores/auth';
 import { set } from 'idb-keyval';
 import { useState } from 'react';
@@ -40,6 +41,7 @@ export function PinSetup() {
 
     await set(AUTH_SALT_KEY, toBase64(salt));
     await set(AUTH_CHECK_KEY, blob);
+    await saveSession(cryptoKey);
 
     setKey(cryptoKey);
   }

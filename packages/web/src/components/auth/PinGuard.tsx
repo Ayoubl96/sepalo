@@ -1,6 +1,7 @@
 'use client';
 
 import { AUTH_MODE_KEY, AUTH_SALT_KEY, type AuthMode } from '@/lib/auth-keys';
+import { loadSession } from '@/lib/session';
 import { useAuthStore } from '@/stores/auth';
 import { get } from 'idb-keyval';
 import { useEffect, useState } from 'react';
@@ -13,25 +14,31 @@ export function PinGuard({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<Status>('loading');
   const [saltB64, setSaltB64] = useState('');
   const [authMode, setAuthMode] = useState<AuthMode>('pin');
-  const cryptoKey = useAuthStore((s) => s.cryptoKey);
+  const { cryptoKey, setKey } = useAuthStore();
 
   useEffect(() => {
     if (cryptoKey) {
       setStatus('unlocked');
       return;
     }
-    Promise.all([get<string>(AUTH_SALT_KEY), get<AuthMode>(AUTH_MODE_KEY)]).then(
-      ([storedSalt, storedMode]) => {
-        if (storedSalt) {
-          setSaltB64(storedSalt);
-          setAuthMode(storedMode ?? 'pin');
-          setStatus('prompt');
-        } else {
-          setStatus('setup');
-        }
-      },
-    );
-  }, [cryptoKey]);
+    loadSession().then((sessionKey) => {
+      if (sessionKey) {
+        setKey(sessionKey);
+        return;
+      }
+      Promise.all([get<string>(AUTH_SALT_KEY), get<AuthMode>(AUTH_MODE_KEY)]).then(
+        ([storedSalt, storedMode]) => {
+          if (storedSalt) {
+            setSaltB64(storedSalt);
+            setAuthMode(storedMode ?? 'pin');
+            setStatus('prompt');
+          } else {
+            setStatus('setup');
+          }
+        },
+      );
+    });
+  }, [cryptoKey, setKey]);
 
   if (status === 'loading') {
     return (
