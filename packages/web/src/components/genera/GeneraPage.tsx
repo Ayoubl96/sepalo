@@ -3,12 +3,13 @@
 import { autoDetectColumns } from '@/lib/parse';
 import type { ParsedSheet } from '@/lib/parse';
 import { useState } from 'react';
+import { ConfigStep } from './ConfigStep';
 import { MapStep } from './MapStep';
 import type { ColumnMap } from './MapStep';
 import { ReviewStep } from './ReviewStep';
 import { UploadStep } from './UploadStep';
 
-type Step = 'upload' | 'map' | 'review';
+type Step = 'upload' | 'map' | 'review' | 'config';
 
 const EMPTY_MAP: ColumnMap = {
   beneficiaryName: '',
@@ -59,6 +60,14 @@ export function GeneraPage() {
           sheet={sheet}
           columnMap={columnMap}
           onBack={() => setStep('map')}
+          onNext={() => setStep('config')}
+        />
+      )}
+      {step === 'config' && sheet && (
+        <ConfigStep
+          sheet={sheet}
+          columnMap={columnMap}
+          onBack={() => setStep('review')}
           onReset={reset}
         />
       )}
@@ -68,11 +77,12 @@ export function GeneraPage() {
 
 function StepBar({ step }: { step: Step }) {
   const steps: { key: Step; label: string }[] = [
-    { key: 'upload', label: '1. Upload' },
-    { key: 'map', label: '2. Map columns' },
-    { key: 'review', label: '3. Review & generate' },
+    { key: 'upload', label: '1. Carica' },
+    { key: 'map', label: '2. Mappa' },
+    { key: 'review', label: '3. Verifica' },
+    { key: 'config', label: '4. Configura' },
   ];
-  const order: Record<Step, number> = { upload: 0, map: 1, review: 2 };
+  const order: Record<Step, number> = { upload: 0, map: 1, review: 2, config: 3 };
 
   return (
     <div className="flex items-center gap-0 border-b border-line bg-surface px-8 h-10">
