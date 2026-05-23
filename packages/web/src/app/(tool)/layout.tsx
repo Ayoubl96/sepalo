@@ -3,10 +3,7 @@ import { Logo } from '@/components/layout/Logo';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
 
-const workLinks = [
-  { href: '/genera', label: 'Generate' },
-  { href: '/rubrica', label: 'Address book' },
-];
+const workLinks = [{ href: '/genera', label: 'Generate' }];
 
 const configLinks = [
   { href: '/profilo', label: 'Profile' },

@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/genera', '/profilo', '/rubrica', '/impostazioni'],
+      disallow: ['/genera', '/profilo', '/impostazioni'],
     },
     sitemap: 'https://sepalo.it/sitemap.xml',
   };
