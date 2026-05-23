@@ -43,6 +43,7 @@
     "ignore": [
       "node_modules",
       ".next",
+      "out",
       "dist",
       "coverage",
       "*.min.js",

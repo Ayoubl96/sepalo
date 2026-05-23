@@ -27,7 +27,7 @@ export function PinSetup() {
     }
 
     if (pin !== firstPin) {
-      setError('PINs do not match — try again.');
+      setError('I PIN non corrispondono — riprova.');
       setFirstPin('');
       setDigits([]);
       setPhase('enter');
@@ -46,11 +46,11 @@ export function PinSetup() {
 
   return (
     <div className="flex flex-col items-center gap-4 text-center">
-      <h1 className="text-2xl font-semibold text-ink">Set your PIN</h1>
+      <h1 className="text-2xl font-semibold text-ink">Crea il tuo PIN</h1>
       <p className="text-sm text-muted max-w-xs">
         {phase === 'enter'
-          ? 'Choose a 6-digit PIN to protect your data. It never leaves your device.'
-          : 'Enter your PIN again to confirm.'}
+          ? 'Scegli un PIN di 4 cifre per proteggere i tuoi dati. Non lascia mai il dispositivo.'
+          : 'Inserisci di nuovo il PIN per confermare.'}
       </p>
       {error && <p className="text-sm text-error">{error}</p>}
       <PinPad key={phase} digits={digits} onChange={setDigits} onComplete={handleComplete} />

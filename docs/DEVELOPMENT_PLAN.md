@@ -2,8 +2,8 @@
 
 > Living document. Updated after each completed milestone.
 >
-> **Current state:** `main` is at post-`v0.3.0` (PR #18 merged, untagged).
-> M0–M3 core complete. Address book (M4 Task 4.1) shipped early as part of M2. M4 Task 4.2, M5–M8 pending.
+> **Current state:** `main` is at `v0.4.3`.
+> M0–M4 complete. Vercel deploy live at `sepalo.it`. M5–M8 pending.
 
 ---
 
@@ -251,13 +251,13 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 ---
 
 #### Task 0.4 — Vercel preview deploy
-**Branch:** `chore/vercel-deploy` → **Tag:** `v0.0.4`
+**Branch:** `chore/vercel-deploy` → **Tag:** `v0.4.3` ✅
 
-- [ ] Vercel project linked to GitHub repo
-- [ ] Environment variable `NEXT_PUBLIC_APP_VERSION` = `0.0.4`
-- [ ] Preview URL active for every PR
-- [ ] Deploy `sepalo.it` with home placeholder (domain purchased and configured)
-- [ ] HTTPS + www redirect configured
+- [x] Vercel project linked to GitHub repo
+- [x] Environment variable `NEXT_PUBLIC_APP_VERSION` set in Vercel dashboard
+- [x] Preview URL active for every PR
+- [x] Deploy live (`sepalo.it` domain configured)
+- [x] HTTPS configured; www redirect pending domain DNS propagation
 
 **Done when:** `sepalo.it` loads the home placeholder. Lighthouse SEO score ≥ 90 on home (even as a placeholder).
 
@@ -535,13 +535,13 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 ---
 
 #### Task 4.2 — Settings
-**Branch:** `feat/web-settings` → **Tag:** `v0.4.0`
+**Branch:** `chore/m4-settings-and-lang-conventions` → **Tag:** `v0.4.0` ✅
 
-- [ ] `app/(tool)/impostazioni/page.tsx` with three sections:
+- [x] `app/(tool)/impostazioni/page.tsx` with three sections:
   - **Change PIN**: re-encrypts all IndexedDB data with new key
   - **Strong passphrase** (opt-in): min 12 chars, same crypto mechanism
   - **Reset device**: double-confirmation modal, clears IndexedDB → onboarding
-- [ ] Info section: app version, GitHub link, MIT license
+- [x] Info section: app version, GitHub link, MIT license
 
 **Done when:** PIN change works. Reset clears everything and shows onboarding.
 
@@ -714,11 +714,11 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 
 | Milestone | Version | What it includes | Status |
 |---|---|---|---|
-| M0 Setup | `v0.0.1` → `v0.0.3` | Monorepo, CI, Next.js shell | ✅ (Vercel deploy pending) |
+| M0 Setup | `v0.0.1` → `v0.4.3` | Monorepo, CI, Next.js shell, Vercel deploy | ✅ |
 | M1 Core | `v0.1.0` | Complete `@sepalo/core` with official XSD validation | ✅ |
 | M2 Auth | `v0.2.0` → `v0.2.4` | PIN, crypto, initiator profile, **address book** | ✅ |
 | M3 Generate | `v0.3.0` + PR #18 | Parsers, upload, map, review, generation, browser XSD validation | ✅ core done, advanced features pending |
-| M4 Extras | `v0.4.0` | Address book ✅ (shipped in M2), settings pending | 🔄 partial |
+| M4 Extras | `v0.4.0` → `v0.4.3` | Address book ✅, settings ✅, Vercel deploy ✅ | ✅ |
 | M5 SEO | `v0.5.0` | SSR landing, content pages, sitemap, Rybbit | ⏳ |
 | M6 PWA | `v0.6.0` | Offline support, downloadable templates | ⏳ |
 | M7 Tests | `v0.7.0` | Full e2e suite | ⏳ |

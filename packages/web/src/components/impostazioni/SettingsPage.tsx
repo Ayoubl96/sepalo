@@ -174,7 +174,7 @@ function ChangeCredentialDialog({
               <DialogDescription>
                 {targetMode === 'passphrase'
                   ? 'Scegli una passphrase di almeno 12 caratteri. Una frase o sequenza di parole funziona bene.'
-                  : 'Scegli un nuovo PIN di 6 cifre.'}
+                  : 'Scegli un nuovo PIN di 4 cifre.'}
               </DialogDescription>
             </DialogHeader>
             {error && <p className="text-sm text-error">{error}</p>}
@@ -430,7 +430,7 @@ export function SettingsPage() {
             <p className="text-xs text-muted mt-0.5">
               {authMode === 'passphrase'
                 ? 'Aggiorna la tua passphrase. Tutti i dati verranno ricifrati.'
-                : 'Aggiorna il tuo PIN di 6 cifre. Tutti i dati verranno ricifrati.'}
+                : 'Aggiorna il tuo PIN di 4 cifre. Tutti i dati verranno ricifrati.'}
             </p>
           </div>
           <Button
@@ -459,7 +459,7 @@ export function SettingsPage() {
             </div>
             <p className="text-xs text-muted mt-0.5 max-w-xs">
               {authMode === 'passphrase'
-                ? 'Stai usando una passphrase. Torna al PIN di 6 cifre se preferisci.'
+                ? 'Stai usando una passphrase. Torna al PIN di 4 cifre se preferisci.'
                 : 'Usa una passphrase (min 12 caratteri) per uno spazio di chiavi molto più ampio. Consigliata se altri hanno accesso fisico a questo dispositivo.'}
             </p>
           </div>
