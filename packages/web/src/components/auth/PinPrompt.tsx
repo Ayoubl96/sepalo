@@ -92,7 +92,7 @@ export function PinPrompt({ saltB64, authMode = 'pin', onForgot }: PinPromptProp
       <p className="text-sm text-muted max-w-xs">
         {authMode === 'passphrase'
           ? 'Inserisci la passphrase per sbloccare i dati.'
-          : 'Inserisci il PIN a 6 cifre per sbloccare i dati.'}
+          : 'Inserisci il PIN a 4 cifre per sbloccare i dati.'}
       </p>
 
       {lockMessage && <p className="text-sm text-warn font-medium">{lockMessage}</p>}
