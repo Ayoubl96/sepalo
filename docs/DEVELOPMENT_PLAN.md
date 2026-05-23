@@ -2,8 +2,16 @@
 
 > Living document. Updated after each completed milestone.
 >
-> **Current state:** `main` is at `v0.4.3`.
+> **Current state:** `main` is at `v0.4.5`. Branch `refactor/simplify-auth` pending merge (auth refactor).
 > M0–M4 complete. Vercel deploy live at `sepalo.it`. M5–M8 pending.
+
+## Architecture Decision: Device-Bound Key (replacing PIN)
+
+**Decision (2026-05-23):** Removed the PIN/passphrase auth system. Profile data (name, CF/PIVA, IBAN) is now encrypted with a randomly generated AES-256-GCM key that is auto-created on first visit and stored as a non-exportable `CryptoKey` in IndexedDB. No user interaction required.
+
+**Rationale:** The PIN added friction on every session with limited security benefit for the data being protected (not payment data — just the user's own company info). The device-bound key provides DevTools-opacity (the blob is unreadable in the IDB inspector) while eliminating the daily unlock prompt.
+
+**Profile collection:** Instead of a separate onboarding flow, the user's initiator data is collected inline in a new **ConfigStep** — the 4th step of the generation flow (Upload → Map → Verifica → Configura). A "Salva per i prossimi file" checkbox (default on first time) persists the data for future runs. Saved data is shown as a compact card; a "Modifica" link expands the full form inline.
 
 ---
 
@@ -398,54 +406,36 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 ---
 
 #### Task 2.2 — Crypto and storage layer
-**Branch:** `feat/web-crypto-storage` ✅
+**Branch:** `feat/web-crypto-storage` → updated in `refactor/simplify-auth` ✅
 
-- [x] `lib/crypto.ts`:
-  ```ts
-  deriveKey(pin, salt): Promise<CryptoKey>  // PBKDF2: SHA-256, 200k iterations
-  encrypt(data, key): Promise<EncryptedBlob>  // AES-GCM: 12-byte IV
-  decrypt(blob, key): Promise<string>
-  generateSalt(): Uint8Array
-  ```
-- [x] `lib/storage.ts`: idb-keyval wrapper with `@sepalo/v1/` namespace, secureGet/secureSet/secureDelete/clearAll
-- [x] `stores/auth.ts` (Zustand): `cryptoKey`, `failedAttempts`, `lockedUntil`, setKey/clearKey/recordFailure/resetAttempts
-- [x] Unit tests: round-trip encrypt/decrypt, wrong key → error, different salts → different ciphertexts
+- [x] `lib/crypto.ts`: `encrypt(data, key)` / `decrypt(blob, key)` — AES-GCM, 12-byte IV
+- [x] `lib/device-key.ts`: `getOrCreateDeviceKey()` — generates AES-256-GCM `CryptoKey` on first visit, stores non-extractable key in IDB; subsequent calls return the stored key
+- [x] `lib/storage.ts`: idb-keyval wrapper with `@sepalo/v1/` namespace; key loaded automatically from `getOrCreateDeviceKey()` — no key parameter required by callers
+- [x] Unit tests: round-trip encrypt/decrypt, wrong key → error
 
 **Done when:** unit tests green. No sensitive data in localStorage/sessionStorage.
 
 ---
 
 #### Task 2.3 — PIN flow
-**Branch:** `feat/web-pin-flow` ✅
+**Branch:** `feat/web-pin-flow` — **Removed in `refactor/simplify-auth`**
 
-- [x] `components/auth/PinPad.tsx`: 10-key pad + delete, 6-dot visual input, keyboard input
-- [x] `components/auth/PinSetup.tsx`: enter + confirm PIN → derive key → save salt in IndexedDB
-- [x] `components/auth/PinPrompt.tsx`:
-  - Session unlock: derive key → attempt decrypt of known payload
-  - Progressive cooldown: 1s → 5s → 30s → 5min → 1h
-  - "Forgot PIN" reset option
-- [x] `components/auth/PinGuard.tsx`: checks `cryptoKey` → show PinPrompt or children
-- [x] `stores/auth.ts` updated: `failedAttempts`, `lockedUntil`
-
-**Done when:** full flow tested manually. Cooldown visible and working.
+PIN/passphrase auth eliminated. Replaced by device-bound key (see architecture decision above).
+All `components/auth/` files deleted. `stores/auth.ts` deleted.
 
 ---
 
 #### Task 2.4 — Initiator profile
-**Branch:** `feat/web-profile` → **Tag:** `v0.2.0` ✅
+**Branch:** `feat/web-profile` → updated in `refactor/simplify-auth` ✅
 
-- [x] `hooks/useProfile.ts`: Zustand-backed hook — `Initiator | null`, encrypted persistence
-- [x] `components/profile/ProfileForm.tsx`:
-  - React Hook Form + Zod schema from `@sepalo/core`
-  - IBAN field: auto-derives ABI + shows bank name
-  - CUC / CF identifier with conditional input
-  - Real-time validation on blur
-- [x] `components/profile/ProfilePage.tsx`: shows form or summary based on profile state
+- [x] `hooks/useProfile.ts`: loads/saves `Initiator` via `secureGet`/`secureSet` (device-bound key, no auth store)
+- [x] `components/profile/ProfileForm.tsx`: React Hook Form + Zod, IBAN→ABI lookup, CUC/CF conditional
+- [x] `components/profile/ProfilePage.tsx`: view and edit saved profile
 - [x] `app/(tool)/profilo/page.tsx`
-- [ ] 4-step onboarding modal (first-time flow before `/genera`)
-- [ ] Onboarding gate: redirect if profile absent
+- [x] Profile collection in ConfigStep (generation flow step 4) — replaces onboarding modal
+- [x] "Salva per i prossimi file" checkbox in ConfigStep — opt-in persistence
 
-**Done when:** onboarding completable in <2 minutes. Profile persists after PIN.
+**Done when:** profile persists across reloads. ConfigStep pre-fills saved data.
 
 ---
 
@@ -483,11 +473,9 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 ---
 
 #### Task 3.3 — Transaction review
-**Branch:** `feat/web-review` ✅ (core done)
+**Branch:** `feat/web-review` → updated in `refactor/simplify-auth` ✅ (core done)
 
-- [x] `components/genera/ReviewStep.tsx`: transaction list, validation errors shown, execution date, batch booking toggle, totals
-- [x] Execution date picker with default
-- [x] Batch booking toggle
+- [x] `components/genera/ReviewStep.tsx`: transaction table + totals, Italian UI; generation logic moved to ConfigStep
 - [x] Transaction count and total amount displayed
 - [ ] Inline cell editing with re-validation on blur
 - [ ] Pagination or virtual scroll for >100 rows
@@ -500,17 +488,15 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 ---
 
 #### Task 3.4 — Generation and download
-**Branch:** `feat/web-generation` → **Tag:** `v0.3.0` ✅ (core done)
+**Branch:** `feat/web-generation` → updated in `refactor/simplify-auth` ✅ (core done)
 
+- [x] `components/genera/ConfigStep.tsx` (new): step 4 of generation flow — initiator form with "Salva" checkbox, payment date + batch booking options, summary sidebar, "Genera XML" button, download card on success
 - [x] XML generation via `buildXml` fully client-side, no server calls
-- [x] `DownloadButton`: XML Blob → `URL.createObjectURL` → file download
-- [x] Browser-side XSD validation via `lib/xsd.ts` (xmllint-wasm via `/vendor/`, webpack/turbopack ignored) — PR #18
+- [x] Browser-side XSD validation via `lib/xsd.ts`
 - [x] Business validation errors shown before download
-- [x] `scripts/vendor-xmllint.mjs`: copies runtime files from node_modules to `public/vendor/` on postinstall
 - [ ] `components/result/XmlPreview.tsx`: first 50 XML lines in monospace font + "Copy all"
 - [ ] File name format: `CBI_{YYYYMMDD}_{n}tx.xml`
 - [ ] `components/result/GenerationSummary.tsx`: SHA-256 hash of file
-- [ ] Full state machine (idle → parsing → mapping → review → generating → success → error)
 - [ ] Analytics: `trackEvent('file_generated', { tx_count })`
 
 **Done when:** downloaded XML passes CBI online validator.
@@ -535,15 +521,14 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 ---
 
 #### Task 4.2 — Settings
-**Branch:** `chore/m4-settings-and-lang-conventions` → **Tag:** `v0.4.0` ✅
+**Branch:** `chore/m4-settings-and-lang-conventions` → updated in `refactor/simplify-auth` ✅
 
-- [x] `app/(tool)/impostazioni/page.tsx` with three sections:
-  - **Change PIN**: re-encrypts all IndexedDB data with new key
-  - **Strong passphrase** (opt-in): min 12 chars, same crypto mechanism
-  - **Reset device**: double-confirmation modal, clears IndexedDB → onboarding
-- [x] Info section: app version, GitHub link, MIT license
+- [x] `app/(tool)/impostazioni/page.tsx` with two sections:
+  - **Zona pericolosa**: reset device — clears all IDB (profile + device key) → fresh start
+  - **Informazioni**: app version, GitHub link, MIT license
+- PIN/passphrase sections removed (device-bound key requires no user credential)
 
-**Done when:** PIN change works. Reset clears everything and shows onboarding.
+**Done when:** reset clears everything. Next visit generates a fresh device key.
 
 ---
 
@@ -637,12 +622,11 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 
 ---
 
-#### Task 7.2 — e2e PIN flow and persistence
-**Branch:** `test/e2e-pin-persistence`
+#### Task 7.2 — e2e profile persistence
+**Branch:** `test/e2e-persistence`
 
-- [ ] `e2e/pin-flow.spec.ts`: cooldown, wrong PIN, correct PIN
-- [ ] `e2e/persistence.spec.ts`: reload → PIN → profile present
-- [ ] `e2e/reset-device.spec.ts`: settings → reset → fresh onboarding
+- [ ] `e2e/persistence.spec.ts`: complete ConfigStep with "Salva" checked → reload → ConfigStep pre-fills saved data
+- [ ] `e2e/reset-device.spec.ts`: settings → reset → next ConfigStep shows empty form
 
 **Done when:** green on Chromium.
 
@@ -716,7 +700,7 @@ The CBI profile uses `Issr` to hold the scheme code (e.g. `CUC`):
 |---|---|---|---|
 | M0 Setup | `v0.0.1` → `v0.4.3` | Monorepo, CI, Next.js shell, Vercel deploy | ✅ |
 | M1 Core | `v0.1.0` | Complete `@sepalo/core` with official XSD validation | ✅ |
-| M2 Auth | `v0.2.0` → `v0.2.4` | PIN, crypto, initiator profile, **address book** | ✅ |
+| M2 Auth | `v0.2.0` → `v0.2.4` | PIN removed → device-bound key, initiator profile, **address book** | ✅ |
 | M3 Generate | `v0.3.0` + PR #18 | Parsers, upload, map, review, generation, browser XSD validation | ✅ core done, advanced features pending |
 | M4 Extras | `v0.4.0` → `v0.4.3` | Address book ✅, settings ✅, Vercel deploy ✅ | ✅ |
 | M5 SEO | `v0.5.0` | SSR landing, content pages, sitemap, Rybbit | ⏳ |
