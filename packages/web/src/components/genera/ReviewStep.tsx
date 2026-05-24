@@ -1,15 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { type ParsedSheet, parseAmount } from '@/lib/parse';
+import { PlusIcon } from 'lucide-react';
 import type { ColumnMap } from './MapStep';
 
 interface ReviewStepProps {
@@ -29,7 +22,6 @@ export function ReviewStep({ sheet, columnMap, onBack, onNext }: ReviewStepProps
       beneficiary: {
         name,
         iban: (row[columnMap.beneficiaryIban] ?? '').replace(/\s/g, ''),
-        bic: columnMap.beneficiaryBic ? row[columnMap.beneficiaryBic] || undefined : undefined,
       },
       remittanceInfo: remittanceMapped
         ? (row[columnMap.remittanceInfo] ?? '')
@@ -38,53 +30,88 @@ export function ReviewStep({ sheet, columnMap, onBack, onNext }: ReviewStepProps
   });
 
   const totalAmount = transactions.reduce((s, t) => s + t.amount, 0);
-  const preview = transactions.slice(0, 5);
 
   return (
-    <div className="px-8 py-10 max-w-3xl">
-      <h2 className="text-xl font-semibold text-ink mb-6">Verifica transazioni</h2>
-
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-ink">
-          {sheet.rows.length} transazion{sheet.rows.length !== 1 ? 'i' : 'e'} —{' '}
-          <span className="font-mono">€ {totalAmount.toFixed(2)}</span>
-        </p>
-        {sheet.rows.length > 5 && (
-          <p className="text-xs text-muted">Prime 5 di {sheet.rows.length}</p>
-        )}
+    <div className="px-8 py-6 flex flex-col gap-5">
+      {/* Stats */}
+      <div className="grid grid-cols-2 rounded-xl border border-line overflow-hidden divide-x divide-line">
+        <div className="px-5 py-4 bg-surface">
+          <p className="text-[11px] uppercase tracking-wider text-muted-2 mb-1">Transazioni</p>
+          <p className="text-2xl font-semibold font-mono text-ink">{sheet.rows.length}</p>
+        </div>
+        <div className="px-5 py-4 bg-surface">
+          <p className="text-[11px] uppercase tracking-wider text-muted-2 mb-1">Totale</p>
+          <p className="text-2xl font-semibold font-mono text-ink">€ {totalAmount.toFixed(2)}</p>
+        </div>
       </div>
 
-      <div className="rounded-lg border border-line overflow-hidden mb-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Beneficiario</TableHead>
-              <TableHead>IBAN</TableHead>
-              <TableHead className="text-right">Importo</TableHead>
-              <TableHead>Causale</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {preview.map((tx, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: preview rows, no stable id
-              <TableRow key={i}>
-                <TableCell>{tx.beneficiary.name}</TableCell>
-                <TableCell className="font-mono text-xs">{tx.beneficiary.iban}</TableCell>
-                <TableCell className="font-mono text-right">€ {tx.amount.toFixed(2)}</TableCell>
-                <TableCell className="max-w-[200px] truncate text-sm">
-                  {tx.remittanceInfo}
-                </TableCell>
-              </TableRow>
+      {/* Toolbar */}
+      <div className="flex items-center gap-2.5">
+        <input
+          type="text"
+          disabled
+          placeholder="Cerca beneficiario, IBAN, causale…"
+          className="w-64 h-9 rounded-lg border border-line bg-surface px-3 text-sm text-muted opacity-50 cursor-not-allowed"
+        />
+        <div className="flex-1" />
+        <button
+          type="button"
+          disabled
+          className="flex items-center gap-1.5 text-sm text-muted opacity-50 cursor-not-allowed px-3 py-2 rounded-lg border border-line bg-surface"
+        >
+          <PlusIcon className="h-3.5 w-3.5" />
+          Aggiungi riga
+        </button>
+      </div>
+
+      {/* Transaction table */}
+      <div className="rounded-xl border border-line overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-surface border-b border-line">
+            <tr>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide w-10">
+                #
+              </th>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
+                Beneficiario
+              </th>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
+                IBAN
+              </th>
+              <th className="px-4 py-2.5 text-right text-xs text-muted-2 uppercase tracking-wide">
+                Importo
+              </th>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
+                Causale
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {transactions.map((tx, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: display-only list, no stable id
+              <tr key={i} className="hover:bg-surface/50">
+                <td className="px-4 py-3 text-xs text-muted">{i + 1}</td>
+                <td className="px-4 py-3 font-medium">{tx.beneficiary.name}</td>
+                <td className="px-4 py-3 font-mono text-xs">{tx.beneficiary.iban}</td>
+                <td className="px-4 py-3 font-mono text-right">€ {tx.amount.toFixed(2)}</td>
+                <td className="px-4 py-3 text-muted max-w-[200px] truncate">
+                  {tx.remittanceInfo || `Pagamento ${tx.beneficiary.name}`}
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
 
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={onBack}>
-          Indietro
-        </Button>
-        <Button onClick={onNext}>Continua</Button>
+      {/* Footer */}
+      <div className="flex justify-between items-center pt-2 border-t border-line">
+        <p className="text-xs text-muted">Le righe in errore non saranno incluse nell&apos;XML.</p>
+        <div className="flex gap-2">
+          <Button variant="ghost" onClick={onBack}>
+            Indietro
+          </Button>
+          <Button onClick={onNext}>Continua a genera</Button>
+        </div>
       </div>
     </div>
   );

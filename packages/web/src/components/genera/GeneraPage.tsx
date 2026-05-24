@@ -3,13 +3,13 @@
 import { autoDetectColumns } from '@/lib/parse';
 import type { ParsedSheet } from '@/lib/parse';
 import { useState } from 'react';
-import { ConfigStep } from './ConfigStep';
+import { GeneraStep } from './GeneraStep';
 import { MapStep } from './MapStep';
 import type { ColumnMap } from './MapStep';
 import { ReviewStep } from './ReviewStep';
 import { UploadStep } from './UploadStep';
 
-type Step = 'upload' | 'map' | 'review' | 'config';
+type Step = 'upload' | 'map' | 'review' | 'genera';
 
 const EMPTY_MAP: ColumnMap = {
   beneficiaryName: '',
@@ -53,6 +53,7 @@ export function GeneraPage() {
           onChange={setColumnMap}
           onBack={reset}
           onNext={() => setStep('review')}
+          rowCount={sheet.rows.length}
         />
       )}
       {step === 'review' && sheet && (
@@ -60,11 +61,11 @@ export function GeneraPage() {
           sheet={sheet}
           columnMap={columnMap}
           onBack={() => setStep('map')}
-          onNext={() => setStep('config')}
+          onNext={() => setStep('genera')}
         />
       )}
-      {step === 'config' && sheet && (
-        <ConfigStep
+      {step === 'genera' && sheet && (
+        <GeneraStep
           sheet={sheet}
           columnMap={columnMap}
           onBack={() => setStep('review')}
@@ -76,27 +77,24 @@ export function GeneraPage() {
 }
 
 function StepBar({ step }: { step: Step }) {
-  const steps: { key: Step; label: string }[] = [
-    { key: 'upload', label: '1. Carica' },
-    { key: 'map', label: '2. Mappa' },
-    { key: 'review', label: '3. Verifica' },
-    { key: 'config', label: '4. Configura' },
-  ];
-  const order: Record<Step, number> = { upload: 0, map: 1, review: 2, config: 3 };
+  const labels = ['Carica e mappa', 'Verifica', 'Genera'];
+  const order: Record<Step, number> = { upload: 0, map: 0, review: 1, genera: 2 };
+  const currentIndex = order[step];
 
   return (
     <div className="flex items-center gap-0 border-b border-line bg-surface px-8 h-10">
-      {steps.map(({ key, label }) => {
-        const active = key === step;
-        const done = order[key] < order[step];
+      {labels.map((label, i) => {
+        const active = i === currentIndex;
+        const done = i < currentIndex;
         return (
           <span
-            key={key}
+            // biome-ignore lint/suspicious/noArrayIndexKey: static label list
+            key={i}
             className={`mr-6 text-xs font-medium ${
               active ? 'text-primary' : done ? 'text-accent' : 'text-muted-2'
             }`}
           >
-            {label}
+            {i + 1}. {label}
           </span>
         );
       })}

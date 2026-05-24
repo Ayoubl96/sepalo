@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { parseFile } from '@/lib/parse';
 import type { ParsedSheet } from '@/lib/parse';
-import { UploadIcon } from 'lucide-react';
+import { DownloadIcon, InfoIcon, UploadIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 interface UploadStepProps {
@@ -23,11 +22,11 @@ export function UploadStep({ onParsed }: UploadStepProps) {
     setLoading(true);
     try {
       const sheet = await parseFile(file);
-      if (sheet.headers.length === 0) throw new Error('No columns found in file.');
-      if (sheet.rows.length === 0) throw new Error('File has no data rows.');
+      if (sheet.headers.length === 0) throw new Error('Nessuna colonna trovata nel file.');
+      if (sheet.rows.length === 0) throw new Error('Il file non contiene righe di dati.');
       onParsed(sheet, file.name);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to parse file.');
+      setError(e instanceof Error ? e.message : 'Errore durante la lettura del file.');
     } finally {
       setLoading(false);
     }
@@ -41,30 +40,63 @@ export function UploadStep({ onParsed }: UploadStepProps) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-8 py-16 text-center">
-      <h1 className="text-2xl font-semibold text-ink mb-2">Generate XML</h1>
-      <p className="text-sm text-muted mb-8 max-w-sm">
-        Upload a CSV or Excel file with your payment data. All processing happens locally.
-      </p>
+    <div className="flex flex-col items-center justify-center min-h-full px-8 py-16">
+      <div className="max-w-2xl w-full">
+        <button
+          type="button"
+          aria-label="Area di caricamento file"
+          className={`relative w-full h-80 rounded-2xl border-2 border-dashed p-0 transition-colors cursor-pointer ${
+            dragging ? 'border-primary bg-primary/5' : 'border-line hover:border-primary/40'
+          }`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+          onClick={() => inputRef.current?.click()}
+        >
+          <div className="flex flex-col items-center justify-center gap-4 h-full">
+            <div className="w-16 h-16 rounded-2xl bg-surface flex items-center justify-center shadow-md">
+              <UploadIcon size={28} className="text-primary" />
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-semibold text-ink mb-1">Rilascia il file qui</p>
+              <p className="text-sm text-muted">
+                oppure{' '}
+                <button
+                  type="button"
+                  className="text-primary underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.click();
+                  }}
+                >
+                  scegli dal computer
+                </button>
+              </p>
+            </div>
+          </div>
+          <p className="absolute bottom-4 left-0 right-0 text-center text-[11px] text-muted">
+            CSV (UTF-8 o Latin-1) · XLSX · max 5 MB / 5.000 righe
+          </p>
+        </button>
 
-      <button
-        type="button"
-        className={`w-full max-w-md rounded-xl border-2 border-dashed p-12 transition-colors cursor-pointer bg-transparent text-left ${
-          dragging ? 'border-primary bg-primary-soft' : 'border-line hover:border-primary-soft'
-        }`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={onDrop}
-        onClick={() => inputRef.current?.click()}
-        aria-label="Upload file"
-      >
-        <UploadIcon className="mx-auto h-10 w-10 text-muted-2 mb-4" />
-        <p className="text-sm font-medium text-ink">Drop a file here or click to browse</p>
-        <p className="text-xs text-muted mt-1">.csv, .xlsx, .xls</p>
-      </button>
+        <div className="mt-5 flex justify-between items-center text-sm">
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-primary"
+            onClick={downloadSample}
+          >
+            <DownloadIcon size={14} />
+            Scarica un CSV di esempio
+          </button>
+          <span className="flex items-center gap-1.5 text-muted">
+            <InfoIcon size={14} />
+            Quali colonne servono?
+          </span>
+        </div>
+      </div>
 
       <input
         ref={inputRef}
@@ -77,45 +109,8 @@ export function UploadStep({ onParsed }: UploadStepProps) {
         }}
       />
 
-      {loading && <p className="mt-4 text-sm text-muted">Parsing file…</p>}
-      {error && <p className="mt-4 text-sm text-error">{error}</p>}
-
-      <div className="mt-8 text-left max-w-md w-full">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-2 mb-2">
-          Expected columns
-        </p>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-muted">
-          <span>
-            <span className="text-ink font-medium">name</span> — beneficiary name
-          </span>
-          <span>
-            <span className="text-ink font-medium">iban</span> — beneficiary IBAN
-          </span>
-          <span>
-            <span className="text-ink font-medium">amount</span> — payment amount (€)
-          </span>
-          <span>
-            <span className="text-ink font-medium">description</span> — remittance info
-          </span>
-          <span>
-            <span className="text-ink font-medium">bic</span> — BIC/SWIFT (optional)
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs text-muted"
-          onClick={(e) => {
-            e.stopPropagation();
-            downloadSample();
-          }}
-        >
-          Download sample CSV
-        </Button>
-      </div>
+      {loading && <p className="mt-6 text-sm text-muted">Analisi in corso…</p>}
+      {error && <p className="mt-6 text-sm text-error">{error}</p>}
     </div>
   );
 }

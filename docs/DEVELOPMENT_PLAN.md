@@ -11,7 +11,7 @@
 
 **Rationale:** The PIN added friction on every session with limited security benefit for the data being protected (not payment data — just the user's own company info). The device-bound key provides DevTools-opacity (the blob is unreadable in the IDB inspector) while eliminating the daily unlock prompt.
 
-**Profile collection:** Instead of a separate onboarding flow, the user's initiator data is collected inline in a new **ConfigStep** — the 4th step of the generation flow (Upload → Map → Verifica → Configura). A "Salva per i prossimi file" checkbox (default on first time) persists the data for future runs. Saved data is shown as a compact card; a "Modifica" link expands the full form inline.
+**Profile collection:** Instead of a separate onboarding flow, the user's initiator data is collected inline in a new **GeneraStep** (step 3 of the generation flow: Carica e mappa → Verifica → Genera). A "Salva per i prossimi file" checkbox (default on first time) persists the data for future runs. Saved data is shown as a compact card; a "Modifica" link expands the full form inline.
 
 ---
 
@@ -475,8 +475,9 @@ All `components/auth/` files deleted. `stores/auth.ts` deleted.
 #### Task 3.3 — Transaction review
 **Branch:** `feat/web-review` → updated in `refactor/simplify-auth` ✅ (core done)
 
-- [x] `components/genera/ReviewStep.tsx`: transaction table + totals, Italian UI; generation logic moved to ConfigStep
+- [x] `components/genera/ReviewStep.tsx`: transaction table + totals, Italian UI; generation logic moved to GeneraStep
 - [x] Transaction count and total amount displayed
+- [ ] Task 3.3a — Review interactivity: client-side search, error/warning filter pills, per-row IBAN validation for Pronte/Da risolvere stats, inline cell editing
 - [ ] Inline cell editing with re-validation on blur
 - [ ] Pagination or virtual scroll for >100 rows
 - [ ] Execution date validation (no weekends, no holidays, ≤60 days)
@@ -490,7 +491,7 @@ All `components/auth/` files deleted. `stores/auth.ts` deleted.
 #### Task 3.4 — Generation and download
 **Branch:** `feat/web-generation` → updated in `refactor/simplify-auth` ✅ (core done)
 
-- [x] `components/genera/ConfigStep.tsx` (new): step 4 of generation flow — initiator form with "Salva" checkbox, payment date + batch booking options, summary sidebar, "Genera XML" button, download card on success
+- [x] `components/genera/GeneraStep.tsx` (new): step 3 of generation flow — initiator form with "Salva" checkbox, payment date + batch booking options, summary sidebar, "Genera XML" button, download card on success
 - [x] XML generation via `buildXml` fully client-side, no server calls
 - [x] Browser-side XSD validation via `lib/xsd.ts`
 - [x] Business validation errors shown before download
@@ -625,8 +626,8 @@ All `components/auth/` files deleted. `stores/auth.ts` deleted.
 #### Task 7.2 — e2e profile persistence
 **Branch:** `test/e2e-persistence`
 
-- [ ] `e2e/persistence.spec.ts`: complete ConfigStep with "Salva" checked → reload → ConfigStep pre-fills saved data
-- [ ] `e2e/reset-device.spec.ts`: settings → reset → next ConfigStep shows empty form
+- [ ] `e2e/persistence.spec.ts`: complete GeneraStep with "Salva" checked → reload → GeneraStep pre-fills saved data
+- [ ] `e2e/reset-device.spec.ts`: settings → reset → next GeneraStep shows empty form
 
 **Done when:** green on Chromium.
 
