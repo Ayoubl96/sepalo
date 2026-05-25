@@ -98,10 +98,10 @@ export function validatePayment(batch: PaymentBatch): ValidationResult {
   }
 
   if (!validateAbi(batch.initiator.abi)) {
-    errors.push({
+    warnings.push({
       path: 'initiator.abi',
       code: 'INVALID_ABI',
-      message: `ABI ${batch.initiator.abi} is not a valid or recognised Italian bank code`,
+      message: `ABI ${batch.initiator.abi} is not a recognised Italian bank code — generation will proceed`,
     });
   }
 

@@ -1,29 +1,31 @@
 'use client';
 
-import { secureGet, secureSet } from '@/lib/storage';
-import { useAuthStore } from '@/stores/auth';
+import { secureDelete, secureGet, secureSet } from '@/lib/storage';
 import type { Initiator } from '@sepalo/core';
 import { useEffect, useState } from 'react';
 
 const PROFILE_KEY = 'initiator-profile';
 
 export function useProfile() {
-  const cryptoKey = useAuthStore((s) => s.cryptoKey);
   const [profile, setProfile] = useState<Initiator | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!cryptoKey) return;
-    secureGet<Initiator>(PROFILE_KEY, cryptoKey)
+    secureGet<Initiator>(PROFILE_KEY)
       .then(setProfile)
+      .catch(() => setProfile(null))
       .finally(() => setLoading(false));
-  }, [cryptoKey]);
+  }, []);
 
   async function saveProfile(data: Initiator): Promise<void> {
-    if (!cryptoKey) return;
-    await secureSet(PROFILE_KEY, data, cryptoKey);
+    await secureSet(PROFILE_KEY, data);
     setProfile(data);
   }
 
-  return { profile, loading, saveProfile };
+  async function clearProfile(): Promise<void> {
+    await secureDelete(PROFILE_KEY);
+    setProfile(null);
+  }
+
+  return { profile, loading, saveProfile, clearProfile };
 }

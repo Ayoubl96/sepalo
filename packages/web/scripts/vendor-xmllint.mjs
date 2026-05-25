@@ -10,8 +10,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
-const pkgJsonPath = require.resolve('xmllint-wasm/package.json');
+// xmllint-wasm is a dep of @sepalo/core, resolve from there
+const coreRequire = createRequire(join(__dirname, '../../core/package.json'));
+const pkgJsonPath = coreRequire.resolve('xmllint-wasm/package.json');
 const xmllintDir = dirname(pkgJsonPath);
 const targetDir = join(__dirname, '..', 'public', 'vendor', 'xmllint-wasm');
 

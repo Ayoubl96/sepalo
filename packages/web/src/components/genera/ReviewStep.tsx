@@ -1,39 +1,18 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useProfile } from '@/hooks/useProfile';
 import { type ParsedSheet, parseAmount } from '@/lib/parse';
-import { validateXmlClientSide } from '@/lib/xsd';
-import { buildXml, validatePayment } from '@sepalo/core';
-import { AlertCircleIcon, DownloadIcon, Loader2Icon } from 'lucide-react';
-import { useState } from 'react';
+import { PlusIcon } from 'lucide-react';
 import type { ColumnMap } from './MapStep';
 
 interface ReviewStepProps {
   sheet: ParsedSheet;
   columnMap: ColumnMap;
   onBack: () => void;
-  onReset: () => void;
+  onNext: () => void;
 }
 
-export function ReviewStep({ sheet, columnMap, onBack, onReset }: ReviewStepProps) {
-  const { profile } = useProfile();
-  const [executionDate, setExecutionDate] = useState(todayIso());
-  const [batchBooking, setBatchBooking] = useState(false);
-  const [errors, setErrors] = useState<{ path: string; message: string }[]>([]);
-  const [xmlBlob, setXmlBlob] = useState<Blob | null>(null);
-  const [generating, setGenerating] = useState(false);
-
+export function ReviewStep({ sheet, columnMap, onBack, onNext }: ReviewStepProps) {
   const remittanceMapped = columnMap.remittanceInfo !== '';
 
   const transactions = sheet.rows.map((row) => {
@@ -43,7 +22,6 @@ export function ReviewStep({ sheet, columnMap, onBack, onReset }: ReviewStepProp
       beneficiary: {
         name,
         iban: (row[columnMap.beneficiaryIban] ?? '').replace(/\s/g, ''),
-        bic: columnMap.beneficiaryBic ? row[columnMap.beneficiaryBic] || undefined : undefined,
       },
       remittanceInfo: remittanceMapped
         ? (row[columnMap.remittanceInfo] ?? '')
@@ -52,181 +30,89 @@ export function ReviewStep({ sheet, columnMap, onBack, onReset }: ReviewStepProp
   });
 
   const totalAmount = transactions.reduce((s, t) => s + t.amount, 0);
-  const preview = transactions.slice(0, 5);
-
-  async function generate() {
-    if (!profile) return;
-    setErrors([]);
-    setXmlBlob(null);
-    setGenerating(true);
-    try {
-      const batch = { initiator: profile, executionDate, batchBooking, transactions };
-
-      const { errors: businessErrors } = validatePayment(batch);
-      if (businessErrors.length > 0) {
-        setErrors(businessErrors);
-        return;
-      }
-
-      const xml = buildXml(batch);
-      const xsdErrors = await validateXmlClientSide(xml);
-      if (xsdErrors.length > 0) {
-        setErrors(xsdErrors);
-        return;
-      }
-
-      setXmlBlob(new Blob([xml], { type: 'application/xml' }));
-    } finally {
-      setGenerating(false);
-    }
-  }
-
-  function download() {
-    if (!xmlBlob) return;
-    const url = URL.createObjectURL(xmlBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sepalo-${executionDate}.xml`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  if (!profile) {
-    return (
-      <div className="px-8 py-10 max-w-2xl">
-        <div className="rounded-lg bg-warn-soft border border-warn p-4 text-sm text-warn">
-          <strong>Profile not set.</strong>{' '}
-          <a href="/profilo" className="underline">
-            Go to Profile
-          </a>{' '}
-          to add your company details before generating.
-        </div>
-        <Button variant="outline" className="mt-4" onClick={onBack}>
-          Back
-        </Button>
-      </div>
-    );
-  }
 
   return (
-    <div className="px-8 py-10 max-w-3xl">
-      <h2 className="text-xl font-semibold text-ink mb-6">Review & generate</h2>
-
-      <div className="grid grid-cols-2 gap-6 mb-8">
-        <div className="space-y-1">
-          <Label htmlFor="exec-date">Execution date</Label>
-          <Input
-            id="exec-date"
-            type="date"
-            value={executionDate}
-            onChange={(e) => {
-              setExecutionDate(e.target.value);
-              setXmlBlob(null);
-            }}
-            className="w-44"
-          />
+    <div className="px-8 py-6 flex flex-col gap-5">
+      {/* Stats */}
+      <div className="grid grid-cols-2 rounded-xl border border-line overflow-hidden divide-x divide-line">
+        <div className="px-5 py-4 bg-surface">
+          <p className="text-[11px] uppercase tracking-wider text-muted-2 mb-1">Transazioni</p>
+          <p className="text-2xl font-semibold font-mono text-ink">{sheet.rows.length}</p>
         </div>
-
-        <div className="flex items-center gap-3 pt-6">
-          <input
-            id="batch-booking"
-            type="checkbox"
-            checked={batchBooking}
-            onChange={(e) => {
-              setBatchBooking(e.target.checked);
-              setXmlBlob(null);
-            }}
-            className="h-4 w-4 accent-primary"
-          />
-          <Label htmlFor="batch-booking">Batch booking</Label>
+        <div className="px-5 py-4 bg-surface">
+          <p className="text-[11px] uppercase tracking-wider text-muted-2 mb-1">Totale</p>
+          <p className="text-2xl font-semibold font-mono text-ink">€ {totalAmount.toFixed(2)}</p>
         </div>
       </div>
 
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-medium text-ink">
-          {sheet.rows.length} transaction{sheet.rows.length !== 1 ? 's' : ''} —{' '}
-          <span className="font-mono">€ {totalAmount.toFixed(2)}</span>
-        </p>
-        {sheet.rows.length > 5 && (
-          <p className="text-xs text-muted">Showing first 5 of {sheet.rows.length}</p>
-        )}
+      {/* Toolbar */}
+      <div className="flex items-center gap-2.5">
+        <input
+          type="text"
+          disabled
+          placeholder="Cerca beneficiario, IBAN, causale…"
+          className="w-64 h-9 rounded-lg border border-line bg-surface px-3 text-sm text-muted opacity-50 cursor-not-allowed"
+        />
+        <div className="flex-1" />
+        <button
+          type="button"
+          disabled
+          className="flex items-center gap-1.5 text-sm text-muted opacity-50 cursor-not-allowed px-3 py-2 rounded-lg border border-line bg-surface"
+        >
+          <PlusIcon className="h-3.5 w-3.5" />
+          Aggiungi riga
+        </button>
       </div>
 
-      <div className="rounded-lg border border-line overflow-hidden mb-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>IBAN</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead>Remittance</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {preview.map((tx, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: preview rows, no stable id
-              <TableRow key={i}>
-                <TableCell>{tx.beneficiary.name}</TableCell>
-                <TableCell className="font-mono text-xs">{tx.beneficiary.iban}</TableCell>
-                <TableCell className="font-mono text-right">€ {tx.amount.toFixed(2)}</TableCell>
-                <TableCell className="max-w-[200px] truncate text-sm">
-                  {tx.remittanceInfo}
-                </TableCell>
-              </TableRow>
+      {/* Transaction table */}
+      <div className="rounded-xl border border-line overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-surface border-b border-line">
+            <tr>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide w-10">
+                #
+              </th>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
+                Beneficiario
+              </th>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
+                IBAN
+              </th>
+              <th className="px-4 py-2.5 text-right text-xs text-muted-2 uppercase tracking-wide">
+                Importo
+              </th>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
+                Causale
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {transactions.map((tx, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: display-only list, no stable id
+              <tr key={i} className="hover:bg-surface/50">
+                <td className="px-4 py-3 text-xs text-muted">{i + 1}</td>
+                <td className="px-4 py-3 font-medium">{tx.beneficiary.name}</td>
+                <td className="px-4 py-3 font-mono text-xs">{tx.beneficiary.iban}</td>
+                <td className="px-4 py-3 font-mono text-right">€ {tx.amount.toFixed(2)}</td>
+                <td className="px-4 py-3 text-muted max-w-[200px] truncate">
+                  {tx.remittanceInfo || `Pagamento ${tx.beneficiary.name}`}
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
 
-      {errors.length > 0 && (
-        <div className="mb-6 rounded-lg border border-error bg-error-soft p-4 space-y-1">
-          <div className="flex items-center gap-2 text-sm font-medium text-error mb-2">
-            <AlertCircleIcon className="h-4 w-4" />
-            {errors.length} validation error{errors.length !== 1 ? 's' : ''}
-          </div>
-          {errors.map((e, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: static error list
-            <p key={i} className="text-xs text-error">
-              <span className="font-mono">{e.path}</span>: {e.message}
-            </p>
-          ))}
-        </div>
-      )}
-
-      {xmlBlob && (
-        <div className="mb-6 rounded-lg border border-accent bg-accent-soft p-4 text-sm text-accent flex items-center justify-between">
-          <span>XML generated successfully.</span>
-          <Button size="sm" onClick={download}>
-            <DownloadIcon className="mr-2 h-4 w-4" />
-            Download XML
+      {/* Footer */}
+      <div className="flex justify-between items-center pt-2 border-t border-line">
+        <p className="text-xs text-muted">Le righe in errore non saranno incluse nell&apos;XML.</p>
+        <div className="flex gap-2">
+          <Button variant="ghost" onClick={onBack}>
+            Indietro
           </Button>
+          <Button onClick={onNext}>Continua a genera</Button>
         </div>
-      )}
-
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={onBack}>
-          Back
-        </Button>
-        <Button onClick={generate} disabled={!!xmlBlob || generating}>
-          {generating ? (
-            <>
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-              Validating…
-            </>
-          ) : (
-            'Generate XML'
-          )}
-        </Button>
-        {xmlBlob && (
-          <Button variant="ghost" onClick={onReset}>
-            Start over
-          </Button>
-        )}
       </div>
     </div>
   );
-}
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
 }
