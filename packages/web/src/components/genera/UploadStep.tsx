@@ -3,7 +3,7 @@
 import { parseFile } from '@/lib/parse';
 import type { ParsedSheet } from '@/lib/parse';
 import { DownloadIcon, InfoIcon, UploadIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 interface UploadStepProps {
   onParsed: (sheet: ParsedSheet, fileName: string) => void;
@@ -12,7 +12,6 @@ interface UploadStepProps {
 const ACCEPT = '.csv,.xlsx,.xls';
 
 export function UploadStep({ onParsed }: UploadStepProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,11 +41,10 @@ export function UploadStep({ onParsed }: UploadStepProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-full px-8 py-16">
       <div className="max-w-2xl w-full">
-        <button
-          type="button"
-          aria-label="Area di caricamento file"
-          className={`relative w-full h-80 rounded-2xl border-2 border-dashed p-0 transition-colors cursor-pointer ${
-            dragging ? 'border-primary bg-primary/5' : 'border-line hover:border-primary/40'
+        <label
+          htmlFor="file-upload"
+          className={`relative flex h-80 w-full cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed transition-colors ${
+            dragging ? 'border-primary bg-primary/10' : 'border-primary bg-primary-soft'
           }`}
           onDragOver={(e) => {
             e.preventDefault();
@@ -54,35 +52,33 @@ export function UploadStep({ onParsed }: UploadStepProps) {
           }}
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
-          onClick={() => inputRef.current?.click()}
         >
-          <div className="flex flex-col items-center justify-center gap-4 h-full">
-            <div className="w-16 h-16 rounded-2xl bg-surface flex items-center justify-center shadow-md">
-              <UploadIcon size={28} className="text-primary" />
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-semibold text-ink mb-1">Rilascia il file qui</p>
-              <p className="text-sm text-muted">
-                oppure{' '}
-                <button
-                  type="button"
-                  className="text-primary underline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    inputRef.current?.click();
-                  }}
-                >
-                  scegli dal computer
-                </button>
-              </p>
-            </div>
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-surface shadow-md">
+            <UploadIcon size={28} className="text-primary" />
+          </div>
+          <div className="text-center">
+            <p className="mb-1 text-2xl font-semibold text-ink">Rilascia il file qui</p>
+            <p className="text-sm text-muted">
+              oppure <span className="text-primary underline">scegli dal computer</span>
+            </p>
           </div>
           <p className="absolute bottom-4 left-0 right-0 text-center text-[11px] text-muted">
             CSV (UTF-8 o Latin-1) · XLSX · max 5 MB / 5.000 righe
           </p>
-        </button>
+        </label>
 
-        <div className="mt-5 flex justify-between items-center text-sm">
+        <input
+          id="file-upload"
+          type="file"
+          accept={ACCEPT}
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handle(f);
+          }}
+        />
+
+        <div className="mt-5 flex items-center justify-between text-sm">
           <button
             type="button"
             className="flex items-center gap-1.5 text-primary"
@@ -97,17 +93,6 @@ export function UploadStep({ onParsed }: UploadStepProps) {
           </span>
         </div>
       </div>
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept={ACCEPT}
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) handle(f);
-        }}
-      />
 
       {loading && <p className="mt-6 text-sm text-muted">Analisi in corso…</p>}
       {error && <p className="mt-6 text-sm text-error">{error}</p>}

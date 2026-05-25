@@ -2,6 +2,7 @@
 
 import { autoDetectColumns } from '@/lib/parse';
 import type { ParsedSheet } from '@/lib/parse';
+import { CheckIcon } from 'lucide-react';
 import { useState } from 'react';
 import { GeneraStep } from './GeneraStep';
 import { MapStep } from './MapStep';
@@ -41,8 +42,8 @@ export function GeneraPage() {
   }
 
   return (
-    <div className="min-h-full">
-      <StepBar step={step} />
+    <div className="flex min-h-full flex-col">
+      <PageHeader step={step} />
       {step === 'upload' && <UploadStep onParsed={handleParsed} />}
       {step === 'map' && sheet && (
         <MapStep
@@ -76,28 +77,45 @@ export function GeneraPage() {
   );
 }
 
-function StepBar({ step }: { step: Step }) {
-  const labels = ['Carica e mappa', 'Verifica', 'Genera'];
-  const order: Record<Step, number> = { upload: 0, map: 0, review: 1, genera: 2 };
-  const currentIndex = order[step];
+function PageHeader({ step }: { step: Step }) {
+  const stepIndex: Record<Step, number> = { upload: 0, map: 0, review: 1, genera: 2 };
+  const current = stepIndex[step];
+  const labels = ['Carica e mappa', 'Verifica', 'Genera'] as const;
 
   return (
-    <div className="flex items-center gap-0 border-b border-line bg-surface px-8 h-10">
-      {labels.map((label, i) => {
-        const active = i === currentIndex;
-        const done = i < currentIndex;
-        return (
-          <span
-            // biome-ignore lint/suspicious/noArrayIndexKey: static label list
-            key={i}
-            className={`mr-6 text-xs font-medium ${
-              active ? 'text-primary' : done ? 'text-accent' : 'text-muted-2'
-            }`}
-          >
-            {i + 1}. {label}
-          </span>
-        );
-      })}
+    <div className="border-b border-line px-9 pt-5">
+      <div className="flex items-end justify-between pb-4">
+        <div>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+            Genera file CBI
+          </p>
+          <h1 className="text-[26px] font-semibold leading-none tracking-[-0.02em] text-ink">
+            Nuovo XML <span className="font-normal text-muted">· bozza</span>
+          </h1>
+        </div>
+        <div className="flex gap-1.5 pb-0.5">
+          {labels.map((label, i) => {
+            const done = i < current;
+            const active = i === current;
+            return (
+              <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: static label list
+                key={i}
+                className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[12.5px] font-medium ${
+                  active ? 'bg-ink text-paper' : done ? 'text-accent' : 'text-muted'
+                }`}
+              >
+                {done ? (
+                  <CheckIcon size={12} />
+                ) : (
+                  <span className="font-mono text-xs">{i + 1}</span>
+                )}
+                {label}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
