@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { Logo } from './Logo';
 
 const navLinks = [
+  { href: '/genera', label: 'Genera' },
   { href: '/guida', label: 'Guida' },
+  { href: '/roadmap', label: 'Roadmap' },
   { href: '/sicurezza', label: 'Sicurezza' },
-  { href: '/about', label: 'About' },
 ];
 
 export function Header() {
@@ -29,12 +30,14 @@ export function Header() {
               {label}
             </Link>
           ))}
-          <Link
-            href="/genera"
-            className="ml-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-paper no-underline transition-colors hover:bg-primary-ink"
+          <a
+            href="https://github.com/ayoubl96/sepalo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md px-3 py-1.5 text-sm text-muted no-underline transition-colors hover:bg-paper-2 hover:text-ink"
           >
-            Apri app
-          </Link>
+            GitHub
+          </a>
         </nav>
 
         {/* Mobile nav */}
