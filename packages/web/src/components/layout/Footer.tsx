@@ -24,15 +24,31 @@ const columns = [
     title: 'Comunità',
     links: [
       { label: 'GitHub', href: 'https://github.com/ayoubl96/sepalo', external: true },
-      { label: 'npm · @sepalo/core', href: 'https://www.npmjs.com/package/@sepalo/core', external: true },
-      { label: 'Segnala un bug', href: 'https://github.com/ayoubl96/sepalo/issues', external: true },
-      { label: 'Contribuisci', href: 'https://github.com/ayoubl96/sepalo/blob/main/CONTRIBUTING.md', external: true },
+      {
+        label: 'npm · @sepalo/core',
+        href: 'https://www.npmjs.com/package/@sepalo/core',
+        external: true,
+      },
+      {
+        label: 'Segnala un bug',
+        href: 'https://github.com/ayoubl96/sepalo/issues',
+        external: true,
+      },
+      {
+        label: 'Contribuisci',
+        href: 'https://github.com/ayoubl96/sepalo/blob/main/CONTRIBUTING.md',
+        external: true,
+      },
     ],
   },
   {
     title: 'Legale',
     links: [
-      { label: 'Licenza MIT', href: 'https://github.com/ayoubl96/sepalo/blob/main/LICENSE', external: true },
+      {
+        label: 'Licenza MIT',
+        href: 'https://github.com/ayoubl96/sepalo/blob/main/LICENSE',
+        external: true,
+      },
       { label: 'Privacy', href: '/sicurezza' },
     ],
   },
@@ -46,7 +62,8 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-4 text-sm text-muted leading-relaxed max-w-[280px]">
-              Webapp open source per generare file XML CBI. Dal foglio Excel all&apos;XML in 30 secondi, tutto nel tuo browser.
+              Webapp open source per generare file XML CBI. Dal foglio Excel all&apos;XML in 30
+              secondi, tutto nel tuo browser.
             </p>
             <div className="mt-5 flex gap-2">
               <a
@@ -82,7 +99,7 @@ export function Footer() {
                     >
                       {label}
                     </Link>
-                  )
+                  ),
                 )}
               </div>
             </div>
@@ -91,7 +108,9 @@ export function Footer() {
 
         <div className="border-t border-line pt-6 flex items-center justify-between text-xs text-muted">
           <span>© 2026 Sepalo · MIT License · maintained con ☕ da Milano</span>
-          <span>Non affiliata con ABI, CBI o le banche menzionate. CBIBdyPaymentRequest.00.04.01.</span>
+          <span>
+            Non affiliata con ABI, CBI o le banche menzionate. CBIBdyPaymentRequest.00.04.01.
+          </span>
         </div>
       </div>
     </footer>
