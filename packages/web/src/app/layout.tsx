@@ -1,6 +1,6 @@
 import { TooltipProvider } from '@/components/ui/tooltip';
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono, Kalam } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({
@@ -12,6 +12,13 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains',
+  display: 'swap',
+});
+
+const kalam = Kalam({
+  subsets: ['latin'],
+  weight: ['300', '400', '700'],
+  variable: '--font-kalam',
   display: 'swap',
 });
 
@@ -27,7 +34,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="it" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="it" className={`${inter.variable} ${jetbrainsMono.variable} ${kalam.variable}`}>
+      <head>
+        <script
+          src="https://rybbit.ayoublefhim.com/api/script.js"
+          data-site-id="6fa4ecf749f3"
+          defer
+        />
+      </head>
       <body>
         <TooltipProvider>{children}</TooltipProvider>
       </body>

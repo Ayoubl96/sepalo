@@ -86,6 +86,39 @@
   --color-accent-soft: #dde3fb;
 }
 
+/* Display typography — used across marketing pages */
+.display-xl {
+  font-size: 88px;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.display-l {
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.display-m {
+  font-size: 44px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.font-kalam {
+  font-family: var(--font-kalam), cursive;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
