@@ -1,4 +1,12 @@
 import { GitHubLink } from '@/components/ui/github-link';
+import {
+  GITHUB_CONTRIBUTING,
+  GITHUB_CONTRIBUTORS,
+  GITHUB_ISSUES,
+  GITHUB_LICENSE,
+  GITHUB_REPO,
+  NPM_CORE_URL,
+} from '@/lib/site';
 import Link from 'next/link';
 import { Logo } from './Logo';
 
@@ -27,31 +35,11 @@ const columns = [
   {
     title: 'Comunità',
     links: [
-      {
-        label: 'GitHub',
-        href: 'https://github.com/ayoubl96/sepalo',
-        external: true,
-      },
-      {
-        label: 'npm · @sepalo/core',
-        href: 'https://www.npmjs.com/package/@sepalo/core',
-        external: true,
-      },
-      {
-        label: 'Segnala un bug',
-        href: 'https://github.com/ayoubl96/sepalo/issues',
-        external: true,
-      },
-      {
-        label: 'Contribuisci',
-        href: 'https://github.com/ayoubl96/sepalo/blob/main/CONTRIBUTING.md',
-        external: true,
-      },
-      {
-        label: 'Licenza MIT',
-        href: 'https://github.com/ayoubl96/sepalo/blob/main/LICENSE',
-        external: true,
-      },
+      { label: 'GitHub', href: GITHUB_REPO, external: true },
+      { label: 'npm · @sepalo/core', href: NPM_CORE_URL, external: true },
+      { label: 'Segnala un bug', href: GITHUB_ISSUES, external: true },
+      { label: 'Contribuisci', href: GITHUB_CONTRIBUTING, external: true },
+      { label: 'Licenza MIT', href: GITHUB_LICENSE, external: true },
     ],
   },
 ];
@@ -103,12 +91,8 @@ export function Footer() {
 
         <div className="border-t border-line pt-6 flex items-center justify-between text-xs text-muted">
           <span>
-            © 2026 Sepalo · MIT License · maintained con ☕ dalla{' '}
-            <a
-              href="https://github.com/Ayoubl96/sepalo/graphs/contributors"
-              target="_blank"
-              rel="noreferrer"
-            >
+            © {new Date().getFullYear()} Sepalo · MIT License · maintained con ☕ dalla{' '}
+            <a href={GITHUB_CONTRIBUTORS} target="_blank" rel="noreferrer">
               community
             </a>
           </span>

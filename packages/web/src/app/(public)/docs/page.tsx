@@ -1,4 +1,5 @@
 import { GitHubLink } from '@/components/ui/github-link';
+import { NPM_CORE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -305,7 +306,7 @@ console.log('Generato output.xml');`}</CodeBlock>
             <div className="flex gap-2 shrink-0">
               <GitHubLink className="rounded-lg border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink no-underline hover:bg-paper transition-colors" />
               <a
-                href="https://www.npmjs.com/package/@sepalo/core"
+                href={NPM_CORE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink no-underline hover:bg-paper transition-colors"

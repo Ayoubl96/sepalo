@@ -1,8 +1,9 @@
+import { SITE_URL } from '@/lib/site';
 import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
 
-const BASE = 'https://sepalo.it';
+const BASE = SITE_URL;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

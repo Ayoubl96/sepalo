@@ -49,7 +49,8 @@
       "*.min.js",
       ".changeset",
       "**/data/xsd/index.ts",
-      "**/public/vendor/**"
+      "**/public/vendor/**",
+      "sepalo-it/**"
     ]
   }
 }
