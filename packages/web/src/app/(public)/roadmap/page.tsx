@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function RoadmapPage() {
   return (
-    <div className="min-h-screen bg-[#fdfaf2]">
+    <div className=" bg-[#fdfaf2]">
       {/* SVG defs for rough/hand-drawn filters */}
       <svg width="0" height="0" className="absolute" aria-hidden="true">
         <defs>
@@ -39,7 +39,7 @@ export default function RoadmapPage() {
         </defs>
       </svg>
 
-      <div className="mx-auto max-w-6xl px-14 py-12">
+      <div className="mx-auto max-w-360 px-14 py-12">
         {/* Title */}
         <div className="relative mb-2 inline-block">
           <h1 className="font-kalam text-[60px] font-bold leading-none text-[#1e1e1e]">Roadmap</h1>
@@ -212,18 +212,6 @@ export default function RoadmapPage() {
         </div>
 
         {/* Footer signature */}
-        <div className="mt-16 flex items-center gap-2.5 font-kalam text-[15px] text-[#868e96]">
-          <svg width="50" height="14" style={{ filter: 'url(#rough-2)' }} aria-hidden="true">
-            <path
-              d="M 0 7 L 44 7"
-              stroke="#868e96"
-              strokeWidth="1.5"
-              fill="none"
-              markerEnd="url(#arrow-road)"
-            />
-          </svg>
-          <span>maintained con ☕ da Milano</span>
-        </div>
       </div>
     </div>
   );

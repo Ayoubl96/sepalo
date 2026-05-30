@@ -1,4 +1,5 @@
 import { Logo } from '@/components/layout/Logo';
+import { GitHubLink } from '@/components/ui/github-link';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import Link from 'next/link';
 
@@ -58,14 +59,7 @@ export default function ToolLayout({ children }: { children: React.ReactNode }) 
           >
             Guide
           </Link>
-          <a
-            href="https://github.com/ayoubl96/sepalo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block rounded-md px-3 py-2 text-sm text-muted no-underline transition-colors hover:bg-paper-2 hover:text-ink"
-          >
-            GitHub
-          </a>
+          <GitHubLink className="rounded-md px-3 py-2 text-sm text-muted no-underline transition-colors hover:bg-paper-2 hover:text-ink" />
         </div>
       </aside>
 

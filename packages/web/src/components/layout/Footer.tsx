@@ -1,13 +1,13 @@
+import { GitHubLink } from '@/components/ui/github-link';
 import Link from 'next/link';
 import { Logo } from './Logo';
 
 const columns = [
   {
-    title: 'Prodotto',
+    title: 'Sepalo',
     links: [
-      { label: 'Genera XML', href: '/genera' },
-      { label: 'Profilo ordinante', href: '/profilo' },
-      { label: 'Scarica CSV di esempio', href: '/genera' },
+      { label: 'Genera File', href: '/genera' },
+      { label: 'Profilo', href: '/profilo' },
       { label: 'Roadmap', href: '/roadmap' },
     ],
   },
@@ -17,13 +17,21 @@ const columns = [
       { label: 'Guida utente', href: '/guida' },
       { label: 'Documentazione @sepalo/core', href: '/docs' },
       { label: 'Sicurezza', href: '/sicurezza' },
-      { label: 'Schema XSD CBI', href: 'https://www.cbi-org.eu', external: true },
+      {
+        label: 'Schema XSD CBI',
+        href: 'https://www.cbi-org.eu',
+        external: true,
+      },
     ],
   },
   {
     title: 'Comunità',
     links: [
-      { label: 'GitHub', href: 'https://github.com/ayoubl96/sepalo', external: true },
+      {
+        label: 'GitHub',
+        href: 'https://github.com/ayoubl96/sepalo',
+        external: true,
+      },
       {
         label: 'npm · @sepalo/core',
         href: 'https://www.npmjs.com/package/@sepalo/core',
@@ -39,17 +47,11 @@ const columns = [
         href: 'https://github.com/ayoubl96/sepalo/blob/main/CONTRIBUTING.md',
         external: true,
       },
-    ],
-  },
-  {
-    title: 'Legale',
-    links: [
       {
         label: 'Licenza MIT',
         href: 'https://github.com/ayoubl96/sepalo/blob/main/LICENSE',
         external: true,
       },
-      { label: 'Privacy', href: '/sicurezza' },
     ],
   },
 ];
@@ -57,23 +59,16 @@ const columns = [
 export function Footer() {
   return (
     <footer className="border-t border-line bg-paper">
-      <div className="mx-auto max-w-[1440px] px-14 py-14">
+      <div className="mx-auto max-w-360 px-14 py-14">
         <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 mb-12">
           <div>
             <Logo />
-            <p className="mt-4 text-sm text-muted leading-relaxed max-w-[280px]">
+            <p className="mt-4 text-sm text-muted leading-relaxed max-w-70">
               Webapp open source per generare file XML CBI. Dal foglio Excel all&apos;XML in 30
               secondi, tutto nel tuo browser.
             </p>
             <div className="mt-5 flex gap-2">
-              <a
-                href="https://github.com/ayoubl96/sepalo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs text-ink-2 no-underline transition-colors hover:bg-paper-2"
-              >
-                GitHub
-              </a>
+              <GitHubLink className="rounded-full border border-line px-3 py-1.5 text-xs text-ink-2 no-underline transition-colors hover:bg-paper-2" />
             </div>
           </div>
           {columns.map(({ title, links }) => (
@@ -107,9 +102,15 @@ export function Footer() {
         </div>
 
         <div className="border-t border-line pt-6 flex items-center justify-between text-xs text-muted">
-          <span>© 2026 Sepalo · MIT License · maintained con ☕ da Milano</span>
           <span>
-            Non affiliata con ABI, CBI o le banche menzionate. CBIBdyPaymentRequest.00.04.01.
+            © 2026 Sepalo · MIT License · maintained con ☕ dalla{' '}
+            <a
+              href="https://github.com/Ayoubl96/sepalo/graphs/contributors"
+              target="_blank"
+              rel="noreferrer"
+            >
+              community
+            </a>
           </span>
         </div>
       </div>

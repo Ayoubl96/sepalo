@@ -603,7 +603,6 @@ All `components/auth/` files deleted. `stores/auth.ts` deleted.
 **Branch:** `feat/web-templates` → **Tag:** `v0.6.0`
 
 - [ ] `public/template.csv`: header + 3 realistic example rows
-- [ ] `public/template.xlsx`: same content in Excel
 - [ ] Download links in `/genera` and `/guida`
 
 **Done when:** downloaded CSV parsable by the app without errors.

@@ -1,3 +1,4 @@
+import { GitHubLink } from '@/components/ui/github-link';
 import { ArrowRightIcon, CheckIcon, PlusIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -12,8 +13,8 @@ const principles = [
   {
     n: '01',
     tag: 'Privacy',
-    title: 'Privacy by architecture.',
-    body: 'Nessun dato di pagamento lascia il browser. Niente backend, niente analytics invasive, niente storage server-side. La crittografia AES-256 è opzionale e tutta nel tuo dispositivo.',
+    title: 'Privacy al centro.',
+    body: 'Nessun dato di pagamento lascia il browser. Niente backend, niente analytics invasive, niente storage server-side. I dati che si salvano sono critografati con AES-256 ma tutto nel tuo browser..',
   },
   {
     n: '02',
@@ -135,7 +136,7 @@ export default function HomePage() {
   return (
     <div>
       {/* HERO */}
-      <section className="border-b border-line px-14 py-20 grid grid-cols-[1fr_480px] gap-20 items-end max-w-[1440px] mx-auto">
+      <section className="border-b border-line px-14 py-20 grid grid-cols-[1fr_480px] gap-20 items-end max-w-360 mx-auto">
         <div>
           <p className="eyebrow mb-7 flex items-center gap-2">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
@@ -237,7 +238,7 @@ export default function HomePage() {
       </section>
 
       {/* THREE PRINCIPLES */}
-      <section className="px-14 py-20 grid grid-cols-3 gap-14 max-w-[1440px] mx-auto">
+      <section className="px-14 py-20 grid grid-cols-3 gap-14 max-w-360 mx-auto">
         {principles.map((p) => (
           <div key={p.n} className="border-t border-ink pt-7">
             <div className="flex justify-between items-baseline mb-4">
@@ -253,7 +254,7 @@ export default function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="border-t border-b border-line bg-paper-2 px-14 py-20 max-w-[1440px] mx-auto">
+      <section className="border-t border-b border-line bg-paper-2 px-14 py-20 max-w-360 mx-auto">
         <div className="grid grid-cols-[360px_1fr] gap-20 mb-14 items-end">
           <div>
             <p className="eyebrow mb-3.5">Come funziona</p>
@@ -292,7 +293,7 @@ export default function HomePage() {
       </section>
 
       {/* VALIDATION SECTION */}
-      <section className="px-14 py-20 max-w-[1440px] mx-auto grid grid-cols-2 gap-16 items-center">
+      <section className="px-14 py-20 max-w-360 mx-auto grid grid-cols-2 gap-16 items-center">
         <div>
           <p className="eyebrow mb-3.5">La schermata di verifica</p>
           <h2 className="display-m mb-5" style={{ fontSize: 40 }}>
@@ -364,7 +365,13 @@ export default function HomePage() {
             </thead>
             <tbody>
               {[
-                { n: 1, name: 'Mario Rossi', iban: 'IT60X05428…', amt: '€ 1.250,00', status: 'ok' },
+                {
+                  n: 1,
+                  name: 'Mario Rossi',
+                  iban: 'IT60X05428…',
+                  amt: '€ 1.250,00',
+                  status: 'ok',
+                },
                 {
                   n: 2,
                   name: 'Acme S.r.l.',
@@ -379,7 +386,13 @@ export default function HomePage() {
                   amt: '€ 980,00',
                   status: 'error',
                 },
-                { n: 4, name: 'Rossi & C.', iban: 'IT60X05428…', amt: '€ 300,00', status: 'ok' },
+                {
+                  n: 4,
+                  name: 'Rossi & C.',
+                  iban: 'IT60X05428…',
+                  amt: '€ 300,00',
+                  status: 'ok',
+                },
                 {
                   n: 5,
                   name: 'Fornitori Srl',
@@ -390,7 +403,13 @@ export default function HomePage() {
               ].map((row) => (
                 <tr
                   key={row.n}
-                  className={`border-b border-line last:border-0 ${row.status === 'error' ? 'bg-error-soft/30' : row.status === 'warn' ? 'bg-warn-soft/30' : 'bg-surface'}`}
+                  className={`border-b border-line last:border-0 ${
+                    row.status === 'error'
+                      ? 'bg-error-soft/30'
+                      : row.status === 'warn'
+                        ? 'bg-warn-soft/30'
+                        : 'bg-surface'
+                  }`}
                 >
                   <td className="px-3 py-2 text-muted">{row.n}</td>
                   <td className="px-3 py-2 text-ink">{row.name}</td>
@@ -415,7 +434,7 @@ export default function HomePage() {
       </section>
 
       {/* COMPARISON TABLE */}
-      <section className="border-t border-line px-14 py-20 max-w-[1440px] mx-auto">
+      <section className="border-t border-line px-14 py-20 max-w-360 mx-auto">
         <div className="mb-12">
           <p className="eyebrow mb-3.5">Posizionamento</p>
           <h2 className="display-l" style={{ fontSize: 60 }}>
@@ -461,7 +480,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-line bg-paper-2 px-14 py-20 max-w-[1440px] mx-auto">
+      <section className="border-t border-line bg-paper-2 px-14 py-20 max-w-360 mx-auto">
         <div className="grid grid-cols-[360px_1fr] gap-20">
           <div>
             <p className="eyebrow mb-3.5">Domande frequenti</p>
@@ -495,11 +514,7 @@ export default function HomePage() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="bg-ink px-14 py-28 text-center max-w-full">
-        <p className="eyebrow mb-5 flex items-center justify-center gap-2 text-muted-2">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-          Pronto in 30 secondi
-        </p>
+      <section className="bg-primary px-14 py-28 text-center max-w-full">
         <h2
           className="mx-auto mb-7 font-semibold leading-[0.95] tracking-[-0.04em] text-paper"
           style={{ fontSize: 88, maxWidth: 900 }}
@@ -508,7 +523,7 @@ export default function HomePage() {
           <br />
           primo file CBI.
         </h2>
-        <p className="mx-auto mb-9 max-w-[560px] text-[18px] text-muted-2">
+        <p className="mx-auto mb-9 max-w-[560px] text-[18px] text-white">
           Niente registrazione, niente upload. Apri Sepalo e provalo con il CSV di esempio.
         </p>
         <div className="inline-flex items-center gap-2.5">
@@ -518,14 +533,7 @@ export default function HomePage() {
           >
             Apri Sepalo <ArrowRightIcon size={15} />
           </Link>
-          <a
-            href="https://github.com/ayoubl96/sepalo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-7 py-4 text-[15px] font-semibold text-paper no-underline transition-colors hover:border-white/40"
-          >
-            GitHub →
-          </a>
+          <GitHubLink className="rounded-xl border border-white/20 px-7 py-4 text-[15px] font-semibold text-paper no-underline transition-colors hover:border-white/40" />
         </div>
       </section>
     </div>
