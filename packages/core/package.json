@@ -10,15 +10,7 @@
     "directory": "packages/core"
   },
   "homepage": "https://sepalo.it/docs",
-  "keywords": [
-    "cbi",
-    "xml",
-    "payment",
-    "sepa",
-    "bonifico",
-    "italia",
-    "typescript"
-  ],
+  "keywords": ["cbi", "xml", "payment", "sepa", "bonifico", "italia", "typescript"],
   "publishConfig": {
     "access": "public"
   },
@@ -30,10 +22,7 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
