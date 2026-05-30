@@ -1,3 +1,4 @@
+import { GitHubLink } from '@/components/ui/github-link';
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
@@ -173,14 +174,10 @@ export default function SicurezzaPage() {
       {/* Source / audit */}
       <div className="mt-6 flex items-center gap-3 text-sm text-muted">
         <span>Vuoi verificare tu stesso?</span>
-        <a
-          href="https://github.com/ayoubl96/sepalo"
-          target="_blank"
-          rel="noopener noreferrer"
+        <GitHubLink
+          label="Leggi il codice su GitHub →"
           className="text-primary underline hover:text-primary-ink"
-        >
-          Leggi il codice su GitHub →
-        </a>
+        />
       </div>
     </div>
   );

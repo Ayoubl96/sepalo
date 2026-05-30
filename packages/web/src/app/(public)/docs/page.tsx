@@ -1,3 +1,4 @@
+import { GitHubLink } from '@/components/ui/github-link';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -302,14 +303,7 @@ console.log('Generato output.xml');`}</CodeBlock>
               </p>
             </div>
             <div className="flex gap-2 shrink-0">
-              <a
-                href="https://github.com/ayoubl96/sepalo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-lg border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink no-underline hover:bg-paper transition-colors"
-              >
-                GitHub →
-              </a>
+              <GitHubLink className="rounded-lg border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink no-underline hover:bg-paper transition-colors" />
               <a
                 href="https://www.npmjs.com/package/@sepalo/core"
                 target="_blank"

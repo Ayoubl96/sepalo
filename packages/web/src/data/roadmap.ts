@@ -19,9 +19,14 @@ export const roadmapColumns: RoadmapColumn[] = [
     color: '#1971c2',
     sub: 'Cosa stiamo facendo',
     items: [
-      { status: 'doing', label: 'Pagine pubbliche e landing', sub: 'in corso' },
-      { status: 'doing', label: 'Guida utente e documentazione' },
-      { status: 'doing', label: 'Analytics Rybbit (self-hosted)' },
+      { status: 'doing', label: 'Improve guida utente e documentazione' },
+      { status: 'doing', label: 'Modifica csv caricato + ricerca' },
+      { status: 'doing', label: 'Template CSV scaricabili' },
+      {
+        status: 'doing',
+        label: '@sepalo/core su npm',
+        sub: 'libreria TS standalone',
+      },
     ],
   },
   {
@@ -30,9 +35,9 @@ export const roadmapColumns: RoadmapColumn[] = [
     sub: 'Subito dopo',
     items: [
       { status: 'planned', label: 'PWA installabile + offline' },
-      { status: 'planned', label: 'Template CSV/XLSX scaricabili' },
+      { status: 'planned', label: 'Tema scuro' },
       { status: 'planned', label: 'Suite test e2e' },
-      { status: 'planned', label: '@sepalo/core su npm', sub: 'libreria TS standalone' },
+      { status: 'planned', label: 'Immagine docker per @sepalo/web' },
     ],
   },
   {
@@ -40,10 +45,9 @@ export const roadmapColumns: RoadmapColumn[] = [
     color: '#6741d9',
     sub: 'Forse, un giorno',
     items: [
-      { status: 'planned', label: 'Tema scuro' },
       { status: 'planned', label: 'Storico file generati' },
-      { status: 'planned', label: 'CLI nativa per CI/CD' },
-      { status: 'planned', label: 'Multi-lingua: EN + DE' },
+      { status: 'planned', label: 'Impostare PIN sicurezza' },
+      { status: 'planned', label: 'Libreria Sepa Direct Debit' },
     ],
   },
 ];
