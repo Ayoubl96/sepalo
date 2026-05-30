@@ -9,9 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { GitHubLink } from '@/components/ui/github-link';
 import { Input } from '@/components/ui/input';
 import { clearAll } from '@/lib/storage';
-import { ExternalLink, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 // ─── Reset device dialog ─────────────────────────────────────────────────────
@@ -132,15 +133,7 @@ export function SettingsPage() {
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted">Codice sorgente</span>
-          <a
-            href="https://github.com/Ayoubl96/sepalo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-primary hover:underline"
-          >
-            GitHub
-            <ExternalLink size={12} />
-          </a>
+          <GitHubLink className="text-primary hover:underline" />
         </div>
       </section>
 

@@ -1,6 +1,5 @@
+import { GITHUB_REPO } from '@/lib/site';
 import { cn } from '@/lib/utils';
-
-const REPO = 'https://github.com/ayoubl96/sepalo';
 
 function GitHubIcon({ size = 16 }: { size?: number }) {
   return (
@@ -25,7 +24,7 @@ interface GitHubLinkProps {
 }
 
 export function GitHubLink({
-  href = REPO,
+  href = GITHUB_REPO,
   label = 'GitHub',
   className,
   iconSize = 16,

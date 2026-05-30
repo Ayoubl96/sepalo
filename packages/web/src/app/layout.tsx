@@ -1,4 +1,5 @@
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono, Kalam } from 'next/font/google';
 import './globals.css';
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
   },
   description:
     'Generate CBI XML files (CBIBdyPaymentRequest.00.04.01) directly in your browser. No account, no server, fully private.',
-  metadataBase: new URL('https://sepalo.it'),
+  metadataBase: new URL(SITE_URL),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

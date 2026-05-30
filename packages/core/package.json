@@ -1,6 +1,6 @@
 {
   "name": "@sepalo/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "CBI XML generation library — types, validators, and document builder for CBIBdyPaymentRequest.00.04.01",
   "license": "MIT",
   "type": "module",
@@ -27,7 +27,14 @@
   },
   "dependencies": {
     "fast-xml-parser": "^5.7.3",
-    "xmllint-wasm": "^5.2.0",
     "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "xmllint-wasm": "^5.2.0"
+  },
+  "peerDependenciesMeta": {
+    "xmllint-wasm": {
+      "optional": true
+    }
   }
 }
