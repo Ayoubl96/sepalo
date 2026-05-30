@@ -1,0 +1,37 @@
+name: Publish @sepalo/core
+
+on:
+  push:
+    tags:
+      - '@sepalo/core@*'
+
+jobs:
+  publish:
+    name: Build and publish to npm
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm --filter @sepalo/core test
+
+      - name: Build
+        run: pnpm --filter @sepalo/core build
+
+      - name: Publish
+        run: npm publish
+        working-directory: packages/core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
