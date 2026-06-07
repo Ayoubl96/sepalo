@@ -1,11 +1,12 @@
 import { roadmapColumns, shippedItems } from '@/data/roadmap';
-import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Roadmap',
   description:
-    'Cosa stiamo costruendo, cosa viene dopo, e cosa potrebbe arrivare un giorno. Niente date — solo direzione.',
-};
+    'La direzione di Sepalo: cosa stiamo costruendo, cosa arriva dopo e le idee in valutazione per generare bonifici CBI. Niente date, solo direzione.',
+  path: '/roadmap',
+});
 
 export default function RoadmapPage() {
   return (

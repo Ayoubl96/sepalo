@@ -1,13 +1,15 @@
 import { GitHubLink } from '@/components/ui/github-link';
+import { pageMetadata } from '@/lib/seo';
 import { ArrowRightIcon, CheckIcon, PlusIcon } from 'lucide-react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-  title: 'Sepalo — Bonifici massivi CBI dal foglio Excel',
+export const metadata = pageMetadata({
+  absoluteTitle: 'Sepalo — Bonifici massivi CBI da Excel a XML, nel browser',
+  title: 'Sepalo',
   description:
-    'Carica un CSV o XLSX con i tuoi pagamenti e scarica un file XML CBIBdyPaymentRequest.00.04.01 valido — 100% nel tuo browser. Nessun account, nessun server, nessun rischio.',
-};
+    "Trasforma un CSV o un Excel in un file XML CBI valido per l'home banking. Gratis e open source, 100% nel browser: nessun account, nessun server.",
+  path: '/',
+});
 
 const principles = [
   {

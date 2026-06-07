@@ -1,4 +1,5 @@
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { OG_IMAGE } from '@/lib/seo';
 import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono, Kalam } from 'next/font/google';
@@ -24,14 +25,45 @@ const kalam = Kalam({
   display: 'swap',
 });
 
+const SITE_TITLE = 'Sepalo — Bonifici massivi CBI da Excel a XML, nel browser';
+const SITE_DESCRIPTION =
+  "Genera bonifici massivi CBI da CSV o Excel e scarica un XML valido per l'home banking. Gratis e open source, 100% nel browser: nessun account, nessun server.";
+
 export const metadata: Metadata = {
   title: {
     default: 'Sepalo',
     template: '%s — Sepalo',
   },
-  description:
-    'Generate CBI XML files (CBIBdyPaymentRequest.00.04.01) directly in your browser. No account, no server, fully private.',
+  description: SITE_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
+  applicationName: 'Sepalo',
+  keywords: [
+    'CBI',
+    'XML CBI',
+    'bonifici massivi',
+    'CBIBdyPaymentRequest.00.04.01',
+    'SEPA',
+    'home banking',
+    'CSV',
+    'XLSX',
+    'pagamenti',
+    'open source',
+  ],
+  openGraph: {
+    type: 'website',
+    siteName: 'Sepalo',
+    locale: 'it_IT',
+    url: SITE_URL,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

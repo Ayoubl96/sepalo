@@ -1,7 +1,13 @@
 import { Logo } from '@/components/layout/Logo';
 import { GitHubLink } from '@/components/ui/github-link';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+// The tool area is a private, client-only app: keep it out of search indexes.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 const workLinks = [{ href: '/genera', label: 'Generate' }];
 

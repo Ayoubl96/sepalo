@@ -1,4 +1,5 @@
 import { GitHubLink } from '@/components/ui/github-link';
+import { pageMetadata } from '@/lib/seo';
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
@@ -6,13 +7,13 @@ import {
   CheckIcon,
   ShieldIcon,
 } from 'lucide-react';
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Sicurezza',
+export const metadata = pageMetadata({
+  title: 'Sicurezza e privacy',
   description:
-    'Come Sepalo protegge i tuoi dati: architettura client-side, crittografia AES-256, threat model e rischi residui.',
-};
+    'Come Sepalo protegge i tuoi dati: elaborazione 100% client-side, dati di pagamento mai salvati, profilo cifrato con AES-256, threat model e rischi residui.',
+  path: '/sicurezza',
+});
 
 const guarantees = [
   'Il file Excel/CSV viene processato esclusivamente nel browser.',
