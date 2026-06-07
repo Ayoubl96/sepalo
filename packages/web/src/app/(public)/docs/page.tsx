@@ -1,13 +1,14 @@
 import { GitHubLink } from '@/components/ui/github-link';
+import { pageMetadata } from '@/lib/seo';
 import { NPM_CORE_URL } from '@/lib/site';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Docs · @sepalo/core',
   description:
-    'Documentazione tecnica di @sepalo/core: installazione, tipi TypeScript, API completa ed esempi di integrazione in Node.js, Deno e browser.',
-};
+    'Documentazione di @sepalo/core, la libreria TypeScript che genera e valida XML CBI (CBIBdyPaymentRequest.00.04.01). Installazione, API, tipi ed esempi per Node.js, browser e Deno.',
+  path: '/docs',
+});
 
 const tocItems = [
   { id: 'installazione', label: 'Installazione' },

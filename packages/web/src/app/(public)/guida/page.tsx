@@ -1,12 +1,13 @@
+import { pageMetadata } from '@/lib/seo';
 import { DownloadIcon } from 'lucide-react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Guida',
   description:
-    "Come usare Sepalo: dal foglio Excel al file XML CBI pronto per l'home banking. Setup, mappatura colonne, validazione e risoluzione problemi.",
-};
+    "Guida passo-passo a Sepalo: prepara il foglio Excel o CSV, imposta il profilo, mappa le colonne e genera un XML CBI valido per l'home banking. Inclusa la risoluzione dei problemi comuni.",
+  path: '/guida',
+});
 
 const sections = [
   {
