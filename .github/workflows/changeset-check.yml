@@ -1,0 +1,43 @@
+name: Changeset check
+
+# Ensures every PR that modifies @sepalo/core also adds a changeset, so the
+# core CHANGELOG and version bump are never skipped. Changes that genuinely
+# don't need a release can satisfy this with an empty changeset:
+#   pnpm changeset --empty
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changeset:
+    name: Require changeset for @sepalo/core changes
+    runs-on: ubuntu-latest
+    # Skip the automated "version packages" PR, which edits core but must not
+    # itself require a changeset.
+    if: github.head_ref != 'changeset-release/main'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify a changeset accompanies core changes
+        run: |
+          base="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}" --depth=1
+
+          core_changed=$(git diff --name-only "$base...HEAD" -- packages/core \
+            | grep -vE '(CHANGELOG\.md|package\.json)$' || true)
+          changeset_added=$(git diff --name-only --diff-filter=A "$base...HEAD" -- '.changeset/*.md' \
+            | grep -v '.changeset/README.md' || true)
+
+          if [ -n "$core_changed" ] && [ -z "$changeset_added" ]; then
+            echo "::error::packages/core was modified but no changeset was added."
+            echo "Run 'pnpm changeset' to describe the change (or 'pnpm changeset --empty' if no release is needed)."
+            echo "--- core files changed ---"
+            echo "$core_changed"
+            exit 1
+          fi
+
+          echo "OK — core changes are accompanied by a changeset (or no core source changed)."
