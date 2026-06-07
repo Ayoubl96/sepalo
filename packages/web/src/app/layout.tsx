@@ -2,6 +2,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono, Kalam } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 
 const inter = Inter({
@@ -36,14 +37,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it" className={`${inter.variable} ${jetbrainsMono.variable} ${kalam.variable}`}>
-      <head>
-        <script
+      <body>
+        <Script
           src="https://rybbit.ayoublefhim.com/api/script.js"
           data-site-id="6fa4ecf749f3"
-          defer
+          strategy="afterInteractive"
         />
-      </head>
-      <body>
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
