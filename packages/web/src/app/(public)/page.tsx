@@ -7,7 +7,7 @@ export const metadata = pageMetadata({
   absoluteTitle: 'Sepalo — Bonifici massivi CBI da Excel a XML, nel browser',
   title: 'Sepalo',
   description:
-    "Carica un CSV o un Excel con i tuoi pagamenti e scarica un file XML CBI valido per l'home banking. 100% nel tuo browser: nessun account, nessun server, open source.",
+    "Trasforma un CSV o un Excel in un file XML CBI valido per l'home banking. Gratis e open source, 100% nel browser: nessun account, nessun server.",
   path: '/',
 });
 

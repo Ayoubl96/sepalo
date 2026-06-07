@@ -5,7 +5,7 @@ import Link from 'next/link';
 export const metadata = pageMetadata({
   title: 'Guida',
   description:
-    "Guida passo-passo a Sepalo: prepara il foglio Excel o CSV, imposta il profilo, mappa le colonne e genera un XML CBI valido per l'home banking. Inclusa la risoluzione dei problemi comuni.",
+    "Guida passo-passo a Sepalo, lo strumento gratuito per bonifici massivi CBI: prepara il foglio Excel o CSV, mappa le colonne e genera l'XML per l'home banking.",
   path: '/guida',
 });
 

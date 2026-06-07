@@ -27,7 +27,7 @@ const kalam = Kalam({
 
 const SITE_TITLE = 'Sepalo — Bonifici massivi CBI da Excel a XML, nel browser';
 const SITE_DESCRIPTION =
-  "Genera bonifici massivi CBI da un CSV o un Excel: scarica un XML CBIBdyPaymentRequest.00.04.01 valido per l'home banking. 100% nel tuo browser, nessun server, open source.";
+  "Genera bonifici massivi CBI da CSV o Excel e scarica un XML valido per l'home banking. Gratis e open source, 100% nel browser: nessun account, nessun server.";
 
 export const metadata: Metadata = {
   title: {
