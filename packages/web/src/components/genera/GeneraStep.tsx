@@ -563,6 +563,7 @@ export function GeneraStep({ sheet, columnMap, onBack, onReset }: GeneraStepProp
     a.download = `${editableFileId}.xml`;
     a.click();
     URL.revokeObjectURL(url);
+    window.rybbit?.event('xml_download');
   }
 
   if (profileLoading) {
