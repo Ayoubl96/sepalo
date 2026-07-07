@@ -45,6 +45,7 @@ const FIELD_KEYWORDS: Record<string, string[]> = {
   beneficiaryBic: ['bic', 'swift'],
   amount: ['amount', 'importo', 'value', 'valore', 'amount_eur', 'importo_eur'],
   remittanceInfo: ['description', 'descrizione', 'remittance', 'causale', 'note', 'notes'],
+  purpose: ['purpose', 'scopo', 'ctgypurp', 'categorypurpose'],
 };
 
 export function parseAmount(raw: string): number {

@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useProfile } from '@/hooks/useProfile';
-import { type ParsedSheet, parseAmount } from '@/lib/parse';
+import type { ParsedSheet } from '@/lib/parse';
+import { rowsToTransactions } from '@/lib/transactions';
 import { validateXmlClientSide } from '@/lib/xsd';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { buildXml, getAbiName, validateIban, validatePayment } from '@sepalo/core';
@@ -29,6 +30,7 @@ import type { ColumnMap } from './MapStep';
 interface GeneraStepProps {
   sheet: ParsedSheet;
   columnMap: ColumnMap;
+  defaultPurpose: string;
   onBack: () => void;
   onReset: () => void;
 }
@@ -495,7 +497,7 @@ function SideDone({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function GeneraStep({ sheet, columnMap, onBack, onReset }: GeneraStepProps) {
+export function GeneraStep({ sheet, columnMap, defaultPurpose, onBack, onReset }: GeneraStepProps) {
   const { profile, loading: profileLoading, saveProfile } = useProfile();
   const [overrideInitiator, setOverrideInitiator] = useState<Initiator | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
@@ -511,21 +513,7 @@ export function GeneraStep({ sheet, columnMap, onBack, onReset }: GeneraStepProp
   const profileAbi = effectiveInitiator ? extractAbi(effectiveInitiator.iban) : null;
   const profileBank = profileAbi ? (getAbiName(profileAbi) ?? null) : null;
 
-  const remittanceMapped = columnMap.remittanceInfo !== '';
-  const transactions = sheet.rows.map((row) => {
-    const name = row[columnMap.beneficiaryName] ?? '';
-    return {
-      amount: parseAmount(row[columnMap.amount] ?? ''),
-      beneficiary: {
-        name,
-        iban: (row[columnMap.beneficiaryIban] ?? '').replace(/\s/g, ''),
-        bic: columnMap.beneficiaryBic ? row[columnMap.beneficiaryBic] || undefined : undefined,
-      },
-      remittanceInfo: remittanceMapped
-        ? (row[columnMap.remittanceInfo] ?? '')
-        : `Pagamento ${name}`.trim(),
-    };
-  });
+  const transactions = rowsToTransactions(sheet.rows, columnMap, defaultPurpose);
   const totalAmount = transactions.reduce((s, t) => s + t.amount, 0);
 
   async function runGenerate(initiator: Initiator) {

@@ -2,6 +2,7 @@
 
 import { autoDetectColumns } from '@/lib/parse';
 import type { ParsedSheet } from '@/lib/parse';
+import { DEFAULT_PURPOSE } from '@/lib/transactions';
 import { CheckIcon } from 'lucide-react';
 import { useState } from 'react';
 import { GeneraStep } from './GeneraStep';
@@ -18,6 +19,7 @@ const EMPTY_MAP: ColumnMap = {
   beneficiaryBic: '',
   amount: '',
   remittanceInfo: '',
+  purpose: '',
 };
 
 export function GeneraPage() {
@@ -25,6 +27,7 @@ export function GeneraPage() {
   const [sheet, setSheet] = useState<ParsedSheet | null>(null);
   const [fileName, setFileName] = useState('');
   const [columnMap, setColumnMap] = useState<ColumnMap>(EMPTY_MAP);
+  const [defaultPurpose, setDefaultPurpose] = useState(DEFAULT_PURPOSE);
 
   function handleParsed(parsed: ParsedSheet, name: string) {
     const detected = autoDetectColumns(parsed.headers);
@@ -39,6 +42,7 @@ export function GeneraPage() {
     setSheet(null);
     setFileName('');
     setColumnMap(EMPTY_MAP);
+    setDefaultPurpose(DEFAULT_PURPOSE);
   }
 
   return (
@@ -61,6 +65,8 @@ export function GeneraPage() {
         <ReviewStep
           sheet={sheet}
           columnMap={columnMap}
+          defaultPurpose={defaultPurpose}
+          onPurposeChange={setDefaultPurpose}
           onBack={() => setStep('map')}
           onNext={() => setStep('genera')}
         />
@@ -69,6 +75,7 @@ export function GeneraPage() {
         <GeneraStep
           sheet={sheet}
           columnMap={columnMap}
+          defaultPurpose={defaultPurpose}
           onBack={() => setStep('review')}
           onReset={reset}
         />

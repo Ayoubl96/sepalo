@@ -1,34 +1,37 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { type ParsedSheet, parseAmount } from '@/lib/parse';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { ParsedSheet } from '@/lib/parse';
+import { CATEGORY_PURPOSES, rowsToTransactions } from '@/lib/transactions';
 import { PlusIcon } from 'lucide-react';
 import type { ColumnMap } from './MapStep';
 
 interface ReviewStepProps {
   sheet: ParsedSheet;
   columnMap: ColumnMap;
+  defaultPurpose: string;
+  onPurposeChange: (code: string) => void;
   onBack: () => void;
   onNext: () => void;
 }
 
-export function ReviewStep({ sheet, columnMap, onBack, onNext }: ReviewStepProps) {
-  const remittanceMapped = columnMap.remittanceInfo !== '';
-
-  const transactions = sheet.rows.map((row) => {
-    const name = row[columnMap.beneficiaryName] ?? '';
-    return {
-      amount: parseAmount(row[columnMap.amount] ?? ''),
-      beneficiary: {
-        name,
-        iban: (row[columnMap.beneficiaryIban] ?? '').replace(/\s/g, ''),
-      },
-      remittanceInfo: remittanceMapped
-        ? (row[columnMap.remittanceInfo] ?? '')
-        : `Pagamento ${name}`.trim(),
-    };
-  });
-
+export function ReviewStep({
+  sheet,
+  columnMap,
+  defaultPurpose,
+  onPurposeChange,
+  onBack,
+  onNext,
+}: ReviewStepProps) {
+  const transactions = rowsToTransactions(sheet.rows, columnMap, defaultPurpose);
+  const purposeMapped = columnMap.purpose !== '';
   const totalAmount = transactions.reduce((s, t) => s + t.amount, 0);
 
   return (
@@ -47,12 +50,26 @@ export function ReviewStep({ sheet, columnMap, onBack, onNext }: ReviewStepProps
 
       {/* Toolbar */}
       <div className="flex items-center gap-2.5">
-        <input
-          type="text"
-          disabled
-          placeholder="Cerca beneficiario, IBAN, causale…"
-          className="w-64 h-9 rounded-lg border border-line bg-surface px-3 text-sm text-muted opacity-50 cursor-not-allowed"
-        />
+        <div className="flex items-center gap-2 text-sm text-muted">
+          <span className="whitespace-nowrap">Scopo</span>
+          <Select value={defaultPurpose} onValueChange={onPurposeChange}>
+            <SelectTrigger className="h-9 w-64">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORY_PURPOSES.map(({ code, label }) => (
+                <SelectItem key={code} value={code}>
+                  <span className="font-mono text-xs">{code}</span> · {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {purposeMapped && (
+          <span className="text-xs text-muted-2">
+            Le righe con una colonna “Scopo” usano il proprio valore.
+          </span>
+        )}
         <div className="flex-1" />
         <button
           type="button"
@@ -84,6 +101,9 @@ export function ReviewStep({ sheet, columnMap, onBack, onNext }: ReviewStepProps
               <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
                 Causale
               </th>
+              <th className="px-4 py-2.5 text-left text-xs text-muted-2 uppercase tracking-wide">
+                Scopo
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -97,6 +117,7 @@ export function ReviewStep({ sheet, columnMap, onBack, onNext }: ReviewStepProps
                 <td className="px-4 py-3 text-muted max-w-[200px] truncate">
                   {tx.remittanceInfo || `Pagamento ${tx.beneficiary.name}`}
                 </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted">{tx.purpose}</td>
               </tr>
             ))}
           </tbody>
