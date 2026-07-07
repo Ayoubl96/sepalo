@@ -17,6 +17,7 @@ export interface ColumnMap {
   beneficiaryBic: string;
   amount: string;
   remittanceInfo: string;
+  purpose: string;
 }
 
 interface MapStepProps {
@@ -36,6 +37,7 @@ const FIELDS: { key: keyof ColumnMap; label: string; required: boolean }[] = [
   { key: 'amount', label: 'Importo', required: true },
   { key: 'remittanceInfo', label: 'Causale', required: true },
   { key: 'beneficiaryBic', label: 'BIC / SWIFT', required: false },
+  { key: 'purpose', label: 'Scopo', required: false },
 ];
 
 const REQUIRED_KEYS: (keyof ColumnMap)[] = [

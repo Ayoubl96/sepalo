@@ -102,9 +102,9 @@ export function UploadStep({ onParsed }: UploadStepProps) {
 
 function downloadSample() {
   const csv = [
-    'name,iban,bic,amount,description',
-    'Mario Rossi,IT60X0542811101000000123456,BCITITMM,100.00,Fattura 2024/001',
-    'Acme S.r.l.,IT60X0542811101000000123456,,250.50,Servizi marzo',
+    'name,iban,bic,amount,description,purpose',
+    'Mario Rossi,IT60X0542811101000000123456,BCITITMM,100.00,Fattura 2024/001,SUPP',
+    'Acme S.r.l.,IT60X0542811101000000123456,,250.50,Servizi marzo,',
   ].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
