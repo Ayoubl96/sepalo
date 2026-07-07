@@ -48,6 +48,7 @@
       "coverage",
       "*.min.js",
       ".changeset",
+      "**/package.json",
       "**/data/xsd/index.ts",
       "**/public/vendor/**",
       "sepalo-it/**"
