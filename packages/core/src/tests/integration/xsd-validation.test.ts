@@ -35,6 +35,20 @@ describe('validateAgainstXsd — valid XML', () => {
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
+
+  it('emits a schema-valid CtgyPurp for an IT beneficiary (default OTHR)', async () => {
+    const xml = buildFixed(fixture01 as PaymentBatch);
+    expect(xml).toContain('<pmrq:CtgyPurp>');
+    expect(xml).toContain('<pmrq:Cd>OTHR</pmrq:Cd>');
+    const result = await validateAgainstXsd(xml);
+    expect(result.errors, JSON.stringify(result.errors, null, 2)).toHaveLength(0);
+    expect(result.valid).toBe(true);
+  });
+
+  it('does not emit CtgyPurp for a foreign beneficiary without a purpose', async () => {
+    const xml = buildFixed(fixture03 as PaymentBatch);
+    expect(xml).not.toContain('<pmrq:CtgyPurp>');
+  });
 });
 
 describe('validateAgainstXsd — invalid XML', () => {

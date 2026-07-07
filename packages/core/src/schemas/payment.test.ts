@@ -145,6 +145,23 @@ describe('TransactionSchema', () => {
       }).success,
     ).toBe(false);
   });
+
+  it('accepts an optional category purpose code', () => {
+    const result = TransactionSchema.safeParse({ ...validTransaction, purpose: 'SALA' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a purpose code longer than 4 chars', () => {
+    expect(TransactionSchema.safeParse({ ...validTransaction, purpose: 'SALARY' }).success).toBe(
+      false,
+    );
+  });
+
+  it('rejects a purpose code with invalid characters', () => {
+    expect(TransactionSchema.safeParse({ ...validTransaction, purpose: 'sa a' }).success).toBe(
+      false,
+    );
+  });
 });
 
 describe('PaymentBatchSchema', () => {

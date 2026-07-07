@@ -11,11 +11,19 @@ export function buildTransaction(tx: Transaction, index: number, creationDate: D
 
   const cdtrAgt = buildCdtrAgt(tx, isItalian, isSepa);
 
+  // Category purpose (CtgyPurp) is mandatory for Italian beneficiary IBANs
+  // (CBI spec 2.12.2.3): default to 'OTHR' when unset. For non-IT beneficiaries
+  // it is optional and only emitted when the caller provides an explicit code.
+  const categoryPurpose = tx.purpose ?? (isItalian ? 'OTHR' : undefined);
+
   return {
     PmtId: {
       InstrId: tx.id ?? generateId(`TX${index + 1}`, creationDate),
       EndToEndId: endToEndId,
     },
+    ...(categoryPurpose && {
+      PmtTpInf: { CtgyPurp: { Cd: categoryPurpose } },
+    }),
     Amt: {
       InstdAmt: {
         '#text': tx.amount.toFixed(2),

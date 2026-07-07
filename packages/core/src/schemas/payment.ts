@@ -27,6 +27,12 @@ export const TransactionSchema = z.object({
   amount: z.number().positive().multipleOf(0.01).max(999_999_999.99),
   beneficiary: BeneficiarySchema,
   remittanceInfo: z.string().min(1).max(140),
+  // ISO 20022 category purpose code (CtgyPurp/Cd). Mandatory for IT beneficiary
+  // IBANs per CBI spec 2.12.2.3; the builder defaults it to 'OTHR' when unset.
+  purpose: z
+    .string()
+    .regex(/^[A-Z0-9]{1,4}$/, 'must be a 1-4 char ISO category purpose code')
+    .optional(),
 });
 
 export const PaymentBatchSchema = z.object({
